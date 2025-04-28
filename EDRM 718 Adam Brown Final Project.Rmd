@@ -4,16 +4,92 @@ output: html_notebook
 author: "Adam Brown"
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
-
 ```{r}
-plot(cars)
+
+library(here)
+library(gt)
+library(readr)
+library(readxl)
+library(tibble)
+library(tidyverse)
+
+
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+```{r}
+
+# Read the Excel files into R
+job_prep_demographics <- read_excel(here("data", "Job Prep Demographics.xlsx"))
+job_prep_gpa_data <- read_excel(here("data", "Job Prep GPA Data.xlsx"))
+job_prep_survey_results <- read_excel(here("data", "Job Prep Survey Results.xlsx"))
+
+# Write the data to CSV files in the 'data' folder
+write_csv(job_prep_demographics, here("data", "Job_Prep_Demographics.csv"))
+write_csv(job_prep_gpa_data, here("data", "Job_Prep_GPA_Data.csv"))
+write_csv(job_prep_survey_results, here("data", "Job_Prep_Survey_Results.csv"))
+
+# Read the CSV files into R using the 'here' package with the correct path
+job_prep_demographics <- read_csv(here("data", "Job_Prep_Demographics.csv"))
+job_prep_gpa_data <- read_csv(here("data", "Job_Prep_GPA_Data.csv"))
+job_prep_survey_results <- read_csv(here("data", "Job_Prep_Survey_Results.csv"))
+
+# View the first few rows of each dataset to confirm they loaded correctly
+head(job_prep_demographics)
+head(job_prep_gpa_data)
+head(job_prep_survey_results)
+
+```
+
+
+```{r}
+
+# Function to check for problems with the dataset after reading
+check_problems <- function(df, file_name) {
+  problems <- problems(df)
+  if (nrow(problems) > 0) {
+    print(paste("Problems in", file_name, ":"))
+    print(problems)
+  } else {
+    print(paste("No problems found in", file_name))
+  }
+}
+
+# Read the CSV files using 'here' package
+job_prep_demographics <- read_csv(here("data", "Job_Prep_Demographics.csv"))
+job_prep_gpa_data <- read_csv(here("data", "Job_Prep_GPA_Data.csv"))
+job_prep_survey_results <- read_csv(here("data", "Job_Prep_Survey_Results.csv"))
+
+# Check for problems with each dataset
+check_problems(job_prep_demographics, "Job_Prep_Demographics.csv")
+check_problems(job_prep_gpa_data, "Job_Prep_GPA_Data.csv")
+check_problems(job_prep_survey_results, "Job_Prep_Survey_Results.csv")
+
+# Check for missing values
+check_missing(job_prep_demographics)
+check_missing(job_prep_gpa_data)
+check_missing(job_prep_survey_results)
+
+# Check for duplicate rows
+check_duplicates(job_prep_demographics)
+check_duplicates(job_prep_gpa_data)
+check_duplicates(job_prep_survey_results)
+
+# Check for data types
+check_data_types(job_prep_demographics)
+check_data_types(job_prep_gpa_data)
+check_data_types(job_prep_survey_results)
+
+# Summary statistics for numerical columns
+check_summary_stats(job_prep_demographics)
+check_summary_stats(job_prep_gpa_data)
+check_summary_stats(job_prep_survey_results)
+
+# Check for outliers in numerical columns
+check_outliers(job_prep_demographics)
+check_outliers(job_prep_gpa_data)
+check_outliers(job_prep_survey_results)
+
+```
+

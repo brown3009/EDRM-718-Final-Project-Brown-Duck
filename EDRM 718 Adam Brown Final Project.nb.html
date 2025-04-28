@@ -1754,33 +1754,142 @@ display: none;
 
 
 <!-- rnb-text-begin -->
-<p>This is an <a href="http://rmarkdown.rstudio.com">R Markdown</a>
-Notebook. When you execute code within the notebook, the results appear
-beneath the code.</p>
-<p>Try executing this chunk by clicking the <em>Run</em> button within
-the chunk or by placing your cursor inside it and pressing
-<em>Ctrl+Shift+Enter</em>.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVjR3h2ZENoallYSnpLVnh1WUdCZ0luMD0gLS0+XG5cbmBgYHJcbnBsb3QoY2FycylcbmBgYFxuXG48IS0tIHJuYi1zb3VyY2UtZW5kIC0tPlxuIn0= -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGxvdChjYXJzKVxuYGBgIn0= -->
-<pre class="r"><code>plot(cars)</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVYRzVzYVdKeVlYSjVLR2hsY21VcFhHNXNhV0p5WVhKNUtHZDBLVnh1YkdsaWNtRnllU2h5WldGa2NpbGNibXhwWW5KaGNua29jbVZoWkhoc0tWeHViR2xpY21GeWVTaDBhV0ppYkdVcFhHNXNhV0p5WVhKNUtIUnBaSGwyWlhKelpTbGNibHh1WEc1Z1lHQWlmUT09IC0tPlxuXG5gYGByXG5cbmxpYnJhcnkoaGVyZSlcbmxpYnJhcnkoZ3QpXG5saWJyYXJ5KHJlYWRyKVxubGlicmFyeShyZWFkeGwpXG5saWJyYXJ5KHRpYmJsZSlcbmxpYnJhcnkodGlkeXZlcnNlKVxuXG5cbmBgYFxuXG48IS0tIHJuYi1zb3VyY2UtZW5kIC0tPlxuIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5saWJyYXJ5KGhlcmUpXG5saWJyYXJ5KGd0KVxubGlicmFyeShyZWFkcilcbmxpYnJhcnkocmVhZHhsKVxubGlicmFyeSh0aWJibGUpXG5saWJyYXJ5KHRpZHl2ZXJzZSlcblxuXG5gYGAifQ== -->
+<pre class="r"><code>
+library(here)
+library(gt)
+library(readr)
+library(readxl)
+library(tibble)
+library(tidyverse)
+</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Add a new chunk by clicking the <em>Insert Chunk</em> button on the
-toolbar or by pressing <em>Ctrl+Alt+I</em>.</p>
-<p>When you save the notebook, an HTML file containing the code and
-output will be saved alongside it (click the <em>Preview</em> button or
-press <em>Ctrl+Shift+K</em> to preview the HTML file).</p>
-<p>The preview shows you a rendered HTML copy of the contents of the
-editor. Consequently, unlike <em>Knit</em>, <em>Preview</em> does not
-run any R code chunks. Instead, the output of the chunk when it was last
-run in the editor is displayed.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVYRzRqSUZKbFlXUWdkR2hsSUVWNFkyVnNJR1pwYkdWeklHbHVkRzhnVWx4dWFtOWlYM0J5WlhCZlpHVnRiMmR5WVhCb2FXTnpJRHd0SUhKbFlXUmZaWGhqWld3b2FHVnlaU2hjSW1SaGRHRmNJaXdnWENKS2IySWdVSEpsY0NCRVpXMXZaM0poY0docFkzTXVlR3h6ZUZ3aUtTbGNibXB2WWw5d2NtVndYMmR3WVY5a1lYUmhJRHd0SUhKbFlXUmZaWGhqWld3b2FHVnlaU2hjSW1SaGRHRmNJaXdnWENKS2IySWdVSEpsY0NCSFVFRWdSR0YwWVM1NGJITjRYQ0lwS1Z4dWFtOWlYM0J5WlhCZmMzVnlkbVY1WDNKbGMzVnNkSE1nUEMwZ2NtVmhaRjlsZUdObGJDaG9aWEpsS0Z3aVpHRjBZVndpTENCY0lrcHZZaUJRY21Wd0lGTjFjblpsZVNCU1pYTjFiSFJ6TG5oc2MzaGNJaWtwWEc1Y2JpTWdWM0pwZEdVZ2RHaGxJR1JoZEdFZ2RHOGdRMU5XSUdacGJHVnpJR2x1SUhSb1pTQW5aR0YwWVNjZ1ptOXNaR1Z5WEc1M2NtbDBaVjlqYzNZb2FtOWlYM0J5WlhCZlpHVnRiMmR5WVhCb2FXTnpMQ0JvWlhKbEtGd2laR0YwWVZ3aUxDQmNJa3B2WWw5UWNtVndYMFJsYlc5bmNtRndhR2xqY3k1amMzWmNJaWtwWEc1M2NtbDBaVjlqYzNZb2FtOWlYM0J5WlhCZlozQmhYMlJoZEdFc0lHaGxjbVVvWENKa1lYUmhYQ0lzSUZ3aVNtOWlYMUJ5WlhCZlIxQkJYMFJoZEdFdVkzTjJYQ0lwS1Z4dWQzSnBkR1ZmWTNOMktHcHZZbDl3Y21Wd1gzTjFjblpsZVY5eVpYTjFiSFJ6TENCb1pYSmxLRndpWkdGMFlWd2lMQ0JjSWtwdllsOVFjbVZ3WDFOMWNuWmxlVjlTWlhOMWJIUnpMbU56ZGx3aUtTbGNibHh1SXlCU1pXRmtJSFJvWlNCRFUxWWdabWxzWlhNZ2FXNTBieUJTSUhWemFXNW5JSFJvWlNBbmFHVnlaU2NnY0dGamEyRm5aU0IzYVhSb0lIUm9aU0JqYjNKeVpXTjBJSEJoZEdoY2JtcHZZbDl3Y21Wd1gyUmxiVzluY21Gd2FHbGpjeUE4TFNCeVpXRmtYMk56ZGlob1pYSmxLRndpWkdGMFlWd2lMQ0JjSWtwdllsOVFjbVZ3WDBSbGJXOW5jbUZ3YUdsamN5NWpjM1pjSWlrcFhHNXFiMkpmY0hKbGNGOW5jR0ZmWkdGMFlTQThMU0J5WldGa1gyTnpkaWhvWlhKbEtGd2laR0YwWVZ3aUxDQmNJa3B2WWw5UWNtVndYMGRRUVY5RVlYUmhMbU56ZGx3aUtTbGNibXB2WWw5d2NtVndYM04xY25abGVWOXlaWE4xYkhSeklEd3RJSEpsWVdSZlkzTjJLR2hsY21Vb1hDSmtZWFJoWENJc0lGd2lTbTlpWDFCeVpYQmZVM1Z5ZG1WNVgxSmxjM1ZzZEhNdVkzTjJYQ0lwS1Z4dVhHNGpJRlpwWlhjZ2RHaGxJR1pwY25OMElHWmxkeUJ5YjNkeklHOW1JR1ZoWTJnZ1pHRjBZWE5sZENCMGJ5QmpiMjVtYVhKdElIUm9aWGtnYkc5aFpHVmtJR052Y25KbFkzUnNlVnh1YUdWaFpDaHFiMkpmY0hKbGNGOWtaVzF2WjNKaGNHaHBZM01wWEc1b1pXRmtLR3B2WWw5d2NtVndYMmR3WVY5a1lYUmhLVnh1YUdWaFpDaHFiMkpmY0hKbGNGOXpkWEoyWlhsZmNtVnpkV3gwY3lsY2JseHVZR0JnSW4wPSAtLT5cblxuYGBgclxuXG4jIFJlYWQgdGhlIEV4Y2VsIGZpbGVzIGludG8gUlxuam9iX3ByZXBfZGVtb2dyYXBoaWNzIDwtIHJlYWRfZXhjZWwoaGVyZShcImRhdGFcIiwgXCJKb2IgUHJlcCBEZW1vZ3JhcGhpY3MueGxzeFwiKSlcbmpvYl9wcmVwX2dwYV9kYXRhIDwtIHJlYWRfZXhjZWwoaGVyZShcImRhdGFcIiwgXCJKb2IgUHJlcCBHUEEgRGF0YS54bHN4XCIpKVxuam9iX3ByZXBfc3VydmV5X3Jlc3VsdHMgPC0gcmVhZF9leGNlbChoZXJlKFwiZGF0YVwiLCBcIkpvYiBQcmVwIFN1cnZleSBSZXN1bHRzLnhsc3hcIikpXG5cbiMgV3JpdGUgdGhlIGRhdGEgdG8gQ1NWIGZpbGVzIGluIHRoZSAnZGF0YScgZm9sZGVyXG53cml0ZV9jc3Yoam9iX3ByZXBfZGVtb2dyYXBoaWNzLCBoZXJlKFwiZGF0YVwiLCBcIkpvYl9QcmVwX0RlbW9ncmFwaGljcy5jc3ZcIikpXG53cml0ZV9jc3Yoam9iX3ByZXBfZ3BhX2RhdGEsIGhlcmUoXCJkYXRhXCIsIFwiSm9iX1ByZXBfR1BBX0RhdGEuY3N2XCIpKVxud3JpdGVfY3N2KGpvYl9wcmVwX3N1cnZleV9yZXN1bHRzLCBoZXJlKFwiZGF0YVwiLCBcIkpvYl9QcmVwX1N1cnZleV9SZXN1bHRzLmNzdlwiKSlcblxuIyBSZWFkIHRoZSBDU1YgZmlsZXMgaW50byBSIHVzaW5nIHRoZSAnaGVyZScgcGFja2FnZSB3aXRoIHRoZSBjb3JyZWN0IHBhdGhcbmpvYl9wcmVwX2RlbW9ncmFwaGljcyA8LSByZWFkX2NzdihoZXJlKFwiZGF0YVwiLCBcIkpvYl9QcmVwX0RlbW9ncmFwaGljcy5jc3ZcIikpXG5qb2JfcHJlcF9ncGFfZGF0YSA8LSByZWFkX2NzdihoZXJlKFwiZGF0YVwiLCBcIkpvYl9QcmVwX0dQQV9EYXRhLmNzdlwiKSlcbmpvYl9wcmVwX3N1cnZleV9yZXN1bHRzIDwtIHJlYWRfY3N2KGhlcmUoXCJkYXRhXCIsIFwiSm9iX1ByZXBfU3VydmV5X1Jlc3VsdHMuY3N2XCIpKVxuXG4jIFZpZXcgdGhlIGZpcnN0IGZldyByb3dzIG9mIGVhY2ggZGF0YXNldCB0byBjb25maXJtIHRoZXkgbG9hZGVkIGNvcnJlY3RseVxuaGVhZChqb2JfcHJlcF9kZW1vZ3JhcGhpY3MpXG5oZWFkKGpvYl9wcmVwX2dwYV9kYXRhKVxuaGVhZChqb2JfcHJlcF9zdXJ2ZXlfcmVzdWx0cylcblxuYGBgXG5cbjwhLS0gcm5iLXNvdXJjZS1lbmQgLS0+XG4ifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jIFJlYWQgdGhlIEV4Y2VsIGZpbGVzIGludG8gUlxuam9iX3ByZXBfZGVtb2dyYXBoaWNzIDwtIHJlYWRfZXhjZWwoaGVyZShcImRhdGFcIiwgXCJKb2IgUHJlcCBEZW1vZ3JhcGhpY3MueGxzeFwiKSlcbmpvYl9wcmVwX2dwYV9kYXRhIDwtIHJlYWRfZXhjZWwoaGVyZShcImRhdGFcIiwgXCJKb2IgUHJlcCBHUEEgRGF0YS54bHN4XCIpKVxuam9iX3ByZXBfc3VydmV5X3Jlc3VsdHMgPC0gcmVhZF9leGNlbChoZXJlKFwiZGF0YVwiLCBcIkpvYiBQcmVwIFN1cnZleSBSZXN1bHRzLnhsc3hcIikpXG5cbiMgV3JpdGUgdGhlIGRhdGEgdG8gQ1NWIGZpbGVzIGluIHRoZSAnZGF0YScgZm9sZGVyXG53cml0ZV9jc3Yoam9iX3ByZXBfZGVtb2dyYXBoaWNzLCBoZXJlKFwiZGF0YVwiLCBcIkpvYl9QcmVwX0RlbW9ncmFwaGljcy5jc3ZcIikpXG53cml0ZV9jc3Yoam9iX3ByZXBfZ3BhX2RhdGEsIGhlcmUoXCJkYXRhXCIsIFwiSm9iX1ByZXBfR1BBX0RhdGEuY3N2XCIpKVxud3JpdGVfY3N2KGpvYl9wcmVwX3N1cnZleV9yZXN1bHRzLCBoZXJlKFwiZGF0YVwiLCBcIkpvYl9QcmVwX1N1cnZleV9SZXN1bHRzLmNzdlwiKSlcblxuIyBSZWFkIHRoZSBDU1YgZmlsZXMgaW50byBSIHVzaW5nIHRoZSAnaGVyZScgcGFja2FnZSB3aXRoIHRoZSBjb3JyZWN0IHBhdGhcbmpvYl9wcmVwX2RlbW9ncmFwaGljcyA8LSByZWFkX2NzdihoZXJlKFwiZGF0YVwiLCBcIkpvYl9QcmVwX0RlbW9ncmFwaGljcy5jc3ZcIikpXG5qb2JfcHJlcF9ncGFfZGF0YSA8LSByZWFkX2NzdihoZXJlKFwiZGF0YVwiLCBcIkpvYl9QcmVwX0dQQV9EYXRhLmNzdlwiKSlcbmpvYl9wcmVwX3N1cnZleV9yZXN1bHRzIDwtIHJlYWRfY3N2KGhlcmUoXCJkYXRhXCIsIFwiSm9iX1ByZXBfU3VydmV5X1Jlc3VsdHMuY3N2XCIpKVxuXG4jIFZpZXcgdGhlIGZpcnN0IGZldyByb3dzIG9mIGVhY2ggZGF0YXNldCB0byBjb25maXJtIHRoZXkgbG9hZGVkIGNvcnJlY3RseVxuaGVhZChqb2JfcHJlcF9kZW1vZ3JhcGhpY3MpXG5oZWFkKGpvYl9wcmVwX2dwYV9kYXRhKVxuaGVhZChqb2JfcHJlcF9zdXJ2ZXlfcmVzdWx0cylcblxuYGBgIn0= -->
+<pre class="r"><code>
+# Read the Excel files into R
+job_prep_demographics &lt;- read_excel(here(&quot;data&quot;, &quot;Job Prep Demographics.xlsx&quot;))
+job_prep_gpa_data &lt;- read_excel(here(&quot;data&quot;, &quot;Job Prep GPA Data.xlsx&quot;))
+job_prep_survey_results &lt;- read_excel(here(&quot;data&quot;, &quot;Job Prep Survey Results.xlsx&quot;))
+
+# Write the data to CSV files in the &#39;data&#39; folder
+write_csv(job_prep_demographics, here(&quot;data&quot;, &quot;Job_Prep_Demographics.csv&quot;))
+write_csv(job_prep_gpa_data, here(&quot;data&quot;, &quot;Job_Prep_GPA_Data.csv&quot;))
+write_csv(job_prep_survey_results, here(&quot;data&quot;, &quot;Job_Prep_Survey_Results.csv&quot;))
+
+# Read the CSV files into R using the &#39;here&#39; package with the correct path
+job_prep_demographics &lt;- read_csv(here(&quot;data&quot;, &quot;Job_Prep_Demographics.csv&quot;))
+job_prep_gpa_data &lt;- read_csv(here(&quot;data&quot;, &quot;Job_Prep_GPA_Data.csv&quot;))
+job_prep_survey_results &lt;- read_csv(here(&quot;data&quot;, &quot;Job_Prep_Survey_Results.csv&quot;))
+
+# View the first few rows of each dataset to confirm they loaded correctly
+head(job_prep_demographics)
+head(job_prep_gpa_data)
+head(job_prep_survey_results)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVYRzRqSUVaMWJtTjBhVzl1SUhSdklHTm9aV05ySUdadmNpQndjbTlpYkdWdGN5QjNhWFJvSUhSb1pTQmtZWFJoYzJWMElHRm1kR1Z5SUhKbFlXUnBibWRjYm1Ob1pXTnJYM0J5YjJKc1pXMXpJRHd0SUdaMWJtTjBhVzl1S0dSbUxDQm1hV3hsWDI1aGJXVXBJSHRjYmlBZ2NISnZZbXhsYlhNZ1BDMGdjSEp2WW14bGJYTW9aR1lwWEc0Z0lHbG1JQ2h1Y205M0tIQnliMkpzWlcxektTQStJREFwSUh0Y2JpQWdJQ0J3Y21sdWRDaHdZWE4wWlNoY0lsQnliMkpzWlcxeklHbHVYQ0lzSUdacGJHVmZibUZ0WlN3Z1hDSTZYQ0lwS1Z4dUlDQWdJSEJ5YVc1MEtIQnliMkpzWlcxektWeHVJQ0I5SUdWc2MyVWdlMXh1SUNBZ0lIQnlhVzUwS0hCaGMzUmxLRndpVG04Z2NISnZZbXhsYlhNZ1ptOTFibVFnYVc1Y0lpd2dabWxzWlY5dVlXMWxLU2xjYmlBZ2ZWeHVmVnh1WEc0aklGSmxZV1FnZEdobElFTlRWaUJtYVd4bGN5QjFjMmx1WnlBbmFHVnlaU2NnY0dGamEyRm5aVnh1YW05aVgzQnlaWEJmWkdWdGIyZHlZWEJvYVdOeklEd3RJSEpsWVdSZlkzTjJLR2hsY21Vb1hDSmtZWFJoWENJc0lGd2lTbTlpWDFCeVpYQmZSR1Z0YjJkeVlYQm9hV056TG1OemRsd2lLU2xjYm1CZ1lDSjkgLS0+XG5cbmBgYHJcblxuIyBGdW5jdGlvbiB0byBjaGVjayBmb3IgcHJvYmxlbXMgd2l0aCB0aGUgZGF0YXNldCBhZnRlciByZWFkaW5nXG5jaGVja19wcm9ibGVtcyA8LSBmdW5jdGlvbihkZiwgZmlsZV9uYW1lKSB7XG4gIHByb2JsZW1zIDwtIHByb2JsZW1zKGRmKVxuICBpZiAobnJvdyhwcm9ibGVtcykgPiAwKSB7XG4gICAgcHJpbnQocGFzdGUoXCJQcm9ibGVtcyBpblwiLCBmaWxlX25hbWUsIFwiOlwiKSlcbiAgICBwcmludChwcm9ibGVtcylcbiAgfSBlbHNlIHtcbiAgICBwcmludChwYXN0ZShcIk5vIHByb2JsZW1zIGZvdW5kIGluXCIsIGZpbGVfbmFtZSkpXG4gIH1cbn1cblxuIyBSZWFkIHRoZSBDU1YgZmlsZXMgdXNpbmcgJ2hlcmUnIHBhY2thZ2VcbmpvYl9wcmVwX2RlbW9ncmFwaGljcyA8LSByZWFkX2NzdihoZXJlKFwiZGF0YVwiLCBcIkpvYl9QcmVwX0RlbW9ncmFwaGljcy5jc3ZcIikpXG5gYGBcblxuPCEtLSBybmItc291cmNlLWVuZCAtLT5cbiJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jIEZ1bmN0aW9uIHRvIGNoZWNrIGZvciBwcm9ibGVtcyB3aXRoIHRoZSBkYXRhc2V0IGFmdGVyIHJlYWRpbmdcbmNoZWNrX3Byb2JsZW1zIDwtIGZ1bmN0aW9uKGRmLCBmaWxlX25hbWUpIHtcbiAgcHJvYmxlbXMgPC0gcHJvYmxlbXMoZGYpXG4gIGlmIChucm93KHByb2JsZW1zKSA+IDApIHtcbiAgICBwcmludChwYXN0ZShcIlByb2JsZW1zIGluXCIsIGZpbGVfbmFtZSwgXCI6XCIpKVxuICAgIHByaW50KHByb2JsZW1zKVxuICB9IGVsc2Uge1xuICAgIHByaW50KHBhc3RlKFwiTm8gcHJvYmxlbXMgZm91bmQgaW5cIiwgZmlsZV9uYW1lKSlcbiAgfVxufVxuXG4jIFJlYWQgdGhlIENTViBmaWxlcyB1c2luZyAnaGVyZScgcGFja2FnZVxuam9iX3ByZXBfZGVtb2dyYXBoaWNzIDwtIHJlYWRfY3N2KGhlcmUoXCJkYXRhXCIsIFwiSm9iX1ByZXBfRGVtb2dyYXBoaWNzLmNzdlwiKSlcbmBgYCJ9 -->
+<pre class="r"><code>
+# Function to check for problems with the dataset after reading
+check_problems &lt;- function(df, file_name) {
+  problems &lt;- problems(df)
+  if (nrow(problems) &gt; 0) {
+    print(paste(&quot;Problems in&quot;, file_name, &quot;:&quot;))
+    print(problems)
+  } else {
+    print(paste(&quot;No problems found in&quot;, file_name))
+  }
+}
+
+# Read the CSV files using &#39;here&#39; package
+job_prep_demographics &lt;- read_csv(here(&quot;data&quot;, &quot;Job_Prep_Demographics.csv&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUm93czogNzY1IENvbHVtbnM6IDTilIDilIAgQ29sdW1uIHNwZWNpZmljYXRpb24g4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSAXG5EZWxpbWl0ZXI6IFwiLFwiXG5jaHIgKDQpOiBKb2IgUHJlcGFyYXRpb24gU3R1ZHksIC4uLjIsIC4uLjMsIC4uLjRcbuKEuSBVc2UgYHNwZWMoKWAgdG8gcmV0cmlldmUgdGhlIGZ1bGwgY29sdW1uIHNwZWNpZmljYXRpb24gZm9yIHRoaXMgZGF0YS5cbuKEuSBTcGVjaWZ5IHRoZSBjb2x1bW4gdHlwZXMgb3Igc2V0IGBzaG93X2NvbF90eXBlcyA9IEZBTFNFYCB0byBxdWlldCB0aGlzIG1lc3NhZ2UuXG4ifQ== -->
+<pre><code>Rows: 765 Columns: 4── Column specification ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Delimiter: &quot;,&quot;
+chr (4): Job Preparation Study, ...2, ...3, ...4
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVhbTlpWDNCeVpYQmZaM0JoWDJSaGRHRWdQQzBnY21WaFpGOWpjM1lvYUdWeVpTaGNJbVJoZEdGY0lpd2dYQ0pLYjJKZlVISmxjRjlIVUVGZlJHRjBZUzVqYzNaY0lpa3BYRzVnWUdBaWZRPT0gLS0+XG5cbmBgYHJcbmpvYl9wcmVwX2dwYV9kYXRhIDwtIHJlYWRfY3N2KGhlcmUoXCJkYXRhXCIsIFwiSm9iX1ByZXBfR1BBX0RhdGEuY3N2XCIpKVxuYGBgXG5cbjwhLS0gcm5iLXNvdXJjZS1lbmQgLS0+XG4ifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuam9iX3ByZXBfZ3BhX2RhdGEgPC0gcmVhZF9jc3YoaGVyZShcImRhdGFcIiwgXCJKb2JfUHJlcF9HUEFfRGF0YS5jc3ZcIikpXG5gYGAifQ== -->
+<pre class="r"><code>job_prep_gpa_data &lt;- read_csv(here(&quot;data&quot;, &quot;Job_Prep_GPA_Data.csv&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUm93czogNzQzIENvbHVtbnM6IDjilIDilIAgQ29sdW1uIHNwZWNpZmljYXRpb24g4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSAXG5EZWxpbWl0ZXI6IFwiLFwiXG5jaHIgKDgpOiBKb2IgUHJlcGFyYXRpb24gU3R1ZHksIC4uLjIsIC4uLjMsIC4uLjQsIC4uLjUsIC4uLjYsIC4uLjcsIC4uLjhcbuKEuSBVc2UgYHNwZWMoKWAgdG8gcmV0cmlldmUgdGhlIGZ1bGwgY29sdW1uIHNwZWNpZmljYXRpb24gZm9yIHRoaXMgZGF0YS5cbuKEuSBTcGVjaWZ5IHRoZSBjb2x1bW4gdHlwZXMgb3Igc2V0IGBzaG93X2NvbF90eXBlcyA9IEZBTFNFYCB0byBxdWlldCB0aGlzIG1lc3NhZ2UuXG4ifQ== -->
+<pre><code>Rows: 743 Columns: 8── Column specification ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Delimiter: &quot;,&quot;
+chr (8): Job Preparation Study, ...2, ...3, ...4, ...5, ...6, ...7, ...8
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVhbTlpWDNCeVpYQmZjM1Z5ZG1WNVgzSmxjM1ZzZEhNZ1BDMGdjbVZoWkY5amMzWW9hR1Z5WlNoY0ltUmhkR0ZjSWl3Z1hDSktiMkpmVUhKbGNGOVRkWEoyWlhsZlVtVnpkV3gwY3k1amMzWmNJaWtwWEc1Z1lHQWlmUT09IC0tPlxuXG5gYGByXG5qb2JfcHJlcF9zdXJ2ZXlfcmVzdWx0cyA8LSByZWFkX2NzdihoZXJlKFwiZGF0YVwiLCBcIkpvYl9QcmVwX1N1cnZleV9SZXN1bHRzLmNzdlwiKSlcbmBgYFxuXG48IS0tIHJuYi1zb3VyY2UtZW5kIC0tPlxuIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuam9iX3ByZXBfc3VydmV5X3Jlc3VsdHMgPC0gcmVhZF9jc3YoaGVyZShcImRhdGFcIiwgXCJKb2JfUHJlcF9TdXJ2ZXlfUmVzdWx0cy5jc3ZcIikpXG5gYGAifQ== -->
+<pre class="r"><code>job_prep_survey_results &lt;- read_csv(here(&quot;data&quot;, &quot;Job_Prep_Survey_Results.csv&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUm93czogNTM2IENvbHVtbnM6IDE14pSA4pSAIENvbHVtbiBzcGVjaWZpY2F0aW9uIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgFxuRGVsaW1pdGVyOiBcIixcIlxuY2hyICgxNSk6IEpvYiBQcmVwYXJhdGlvbiBTdHVkeSwgLi4uMiwgLi4uMywgLi4uNCwgLi4uNSwgLi4uNiwgLi4uNywgLi4uOCwgLi4uOSwgLi4uMTAsIC4uLjExLCAuLi4xMiwgLi4uMTMsIC4uLjE0LCAuLi4xNVxu4oS5IFVzZSBgc3BlYygpYCB0byByZXRyaWV2ZSB0aGUgZnVsbCBjb2x1bW4gc3BlY2lmaWNhdGlvbiBmb3IgdGhpcyBkYXRhLlxu4oS5IFNwZWNpZnkgdGhlIGNvbHVtbiB0eXBlcyBvciBzZXQgYHNob3dfY29sX3R5cGVzID0gRkFMU0VgIHRvIHF1aWV0IHRoaXMgbWVzc2FnZS5cbiJ9 -->
+<pre><code>Rows: 536 Columns: 15── Column specification ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Delimiter: &quot;,&quot;
+chr (15): Job Preparation Study, ...2, ...3, ...4, ...5, ...6, ...7, ...8, ...9, ...10, ...11, ...12, ...13, ...14, ...15
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVJeUJEYUdWamF5Qm1iM0lnY0hKdllteGxiWE1nZDJsMGFDQmxZV05vSUdSaGRHRnpaWFJjYm1Ob1pXTnJYM0J5YjJKc1pXMXpLR3B2WWw5d2NtVndYMlJsYlc5bmNtRndhR2xqY3l3Z1hDSktiMkpmVUhKbGNGOUVaVzF2WjNKaGNHaHBZM011WTNOMlhDSXBYRzVnWUdBaWZRPT0gLS0+XG5cbmBgYHJcbiMgQ2hlY2sgZm9yIHByb2JsZW1zIHdpdGggZWFjaCBkYXRhc2V0XG5jaGVja19wcm9ibGVtcyhqb2JfcHJlcF9kZW1vZ3JhcGhpY3MsIFwiSm9iX1ByZXBfRGVtb2dyYXBoaWNzLmNzdlwiKVxuYGBgXG5cbjwhLS0gcm5iLXNvdXJjZS1lbmQgLS0+XG4ifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDaGVjayBmb3IgcHJvYmxlbXMgd2l0aCBlYWNoIGRhdGFzZXRcbmNoZWNrX3Byb2JsZW1zKGpvYl9wcmVwX2RlbW9ncmFwaGljcywgXCJKb2JfUHJlcF9EZW1vZ3JhcGhpY3MuY3N2XCIpXG5gYGAifQ== -->
+<pre class="r"><code># Check for problems with each dataset
+check_problems(job_prep_demographics, &quot;Job_Prep_Demographics.csv&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiTm8gcHJvYmxlbXMgZm91bmQgaW4gSm9iX1ByZXBfRGVtb2dyYXBoaWNzLmNzdlwiXG4ifQ== -->
+<pre><code>[1] &quot;No problems found in Job_Prep_Demographics.csv&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVZMmhsWTJ0ZmNISnZZbXhsYlhNb2FtOWlYM0J5WlhCZlozQmhYMlJoZEdFc0lGd2lTbTlpWDFCeVpYQmZSMUJCWDBSaGRHRXVZM04yWENJcFhHNWdZR0FpZlE9PSAtLT5cblxuYGBgclxuY2hlY2tfcHJvYmxlbXMoam9iX3ByZXBfZ3BhX2RhdGEsIFwiSm9iX1ByZXBfR1BBX0RhdGEuY3N2XCIpXG5gYGBcblxuPCEtLSBybmItc291cmNlLWVuZCAtLT5cbiJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2hlY2tfcHJvYmxlbXMoam9iX3ByZXBfZ3BhX2RhdGEsIFwiSm9iX1ByZXBfR1BBX0RhdGEuY3N2XCIpXG5gYGAifQ== -->
+<pre class="r"><code>check_problems(job_prep_gpa_data, &quot;Job_Prep_GPA_Data.csv&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiTm8gcHJvYmxlbXMgZm91bmQgaW4gSm9iX1ByZXBfR1BBX0RhdGEuY3N2XCJcbiJ9 -->
+<pre><code>[1] &quot;No problems found in Job_Prep_GPA_Data.csv&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVZMmhsWTJ0ZmNISnZZbXhsYlhNb2FtOWlYM0J5WlhCZmMzVnlkbVY1WDNKbGMzVnNkSE1zSUZ3aVNtOWlYMUJ5WlhCZlUzVnlkbVY1WDFKbGMzVnNkSE11WTNOMlhDSXBYRzVnWUdBaWZRPT0gLS0+XG5cbmBgYHJcbmNoZWNrX3Byb2JsZW1zKGpvYl9wcmVwX3N1cnZleV9yZXN1bHRzLCBcIkpvYl9QcmVwX1N1cnZleV9SZXN1bHRzLmNzdlwiKVxuYGBgXG5cbjwhLS0gcm5iLXNvdXJjZS1lbmQgLS0+XG4ifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2hlY2tfcHJvYmxlbXMoam9iX3ByZXBfc3VydmV5X3Jlc3VsdHMsIFwiSm9iX1ByZXBfU3VydmV5X1Jlc3VsdHMuY3N2XCIpXG5gYGAifQ== -->
+<pre class="r"><code>check_problems(job_prep_survey_results, &quot;Job_Prep_Survey_Results.csv&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiTm8gcHJvYmxlbXMgZm91bmQgaW4gSm9iX1ByZXBfU3VydmV5X1Jlc3VsdHMuY3N2XCJcbiJ9 -->
+<pre><code>[1] &quot;No problems found in Job_Prep_Survey_Results.csv&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG48IS0tIHJuYi1zb3VyY2UtYmVnaW4gZXlKa1lYUmhJam9pWUdCZ2NseHVJeUJEYUdWamF5Qm1iM0lnYldsemMybHVaeUIyWVd4MVpYTmNibU5vWldOclgyMXBjM05wYm1jb2FtOWlYM0J5WlhCZlpHVnRiMmR5WVhCb2FXTnpLVnh1WUdCZ0luMD0gLS0+XG5cbmBgYHJcbiMgQ2hlY2sgZm9yIG1pc3NpbmcgdmFsdWVzXG5jaGVja19taXNzaW5nKGpvYl9wcmVwX2RlbW9ncmFwaGljcylcbmBgYFxuXG48IS0tIHJuYi1zb3VyY2UtZW5kIC0tPlxuIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDaGVjayBmb3IgbWlzc2luZyB2YWx1ZXNcbmNoZWNrX21pc3Npbmcoam9iX3ByZXBfZGVtb2dyYXBoaWNzKVxuYGBgIn0= -->
+<pre class="r"><code># Check for missing values
+check_missing(job_prep_demographics)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gY2hlY2tfbWlzc2luZyhqb2JfcHJlcF9kZW1vZ3JhcGhpY3MpIDogXG4gIGNvdWxkIG5vdCBmaW5kIGZ1bmN0aW9uIFwiY2hlY2tfbWlzc2luZ1wiXG4ifQ== -->
+<pre><code>Error in check_missing(job_prep_demographics) : 
+  could not find function &quot;check_missing&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCmF1dGhvcjogIkFkYW0gQnJvd24iDQotLS0NCg0KVGhpcyBpcyBhbiBbUiBNYXJrZG93bl0oaHR0cDovL3JtYXJrZG93bi5yc3R1ZGlvLmNvbSkgTm90ZWJvb2suIFdoZW4geW91IGV4ZWN1dGUgY29kZSB3aXRoaW4gdGhlIG5vdGVib29rLCB0aGUgcmVzdWx0cyBhcHBlYXIgYmVuZWF0aCB0aGUgY29kZS4gDQoNClRyeSBleGVjdXRpbmcgdGhpcyBjaHVuayBieSBjbGlja2luZyB0aGUgKlJ1biogYnV0dG9uIHdpdGhpbiB0aGUgY2h1bmsgb3IgYnkgcGxhY2luZyB5b3VyIGN1cnNvciBpbnNpZGUgaXQgYW5kIHByZXNzaW5nICpDdHJsK1NoaWZ0K0VudGVyKi4gDQoNCmBgYHtyfQ0KcGxvdChjYXJzKQ0KYGBgDQoNCkFkZCBhIG5ldyBjaHVuayBieSBjbGlja2luZyB0aGUgKkluc2VydCBDaHVuayogYnV0dG9uIG9uIHRoZSB0b29sYmFyIG9yIGJ5IHByZXNzaW5nICpDdHJsK0FsdCtJKi4NCg0KV2hlbiB5b3Ugc2F2ZSB0aGUgbm90ZWJvb2ssIGFuIEhUTUwgZmlsZSBjb250YWluaW5nIHRoZSBjb2RlIGFuZCBvdXRwdXQgd2lsbCBiZSBzYXZlZCBhbG9uZ3NpZGUgaXQgKGNsaWNrIHRoZSAqUHJldmlldyogYnV0dG9uIG9yIHByZXNzICpDdHJsK1NoaWZ0K0sqIHRvIHByZXZpZXcgdGhlIEhUTUwgZmlsZSkuDQoNClRoZSBwcmV2aWV3IHNob3dzIHlvdSBhIHJlbmRlcmVkIEhUTUwgY29weSBvZiB0aGUgY29udGVudHMgb2YgdGhlIGVkaXRvci4gQ29uc2VxdWVudGx5LCB1bmxpa2UgKktuaXQqLCAqUHJldmlldyogZG9lcyBub3QgcnVuIGFueSBSIGNvZGUgY2h1bmtzLiBJbnN0ZWFkLCB0aGUgb3V0cHV0IG9mIHRoZSBjaHVuayB3aGVuIGl0IHdhcyBsYXN0IHJ1biBpbiB0aGUgZWRpdG9yIGlzIGRpc3BsYXllZC4NCg==</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCmF1dGhvcjogIkFkYW0gQnJvd24iDQotLS0NCg0KYGBge3J9DQoNCmxpYnJhcnkoaGVyZSkNCmxpYnJhcnkoZ3QpDQpsaWJyYXJ5KHJlYWRyKQ0KbGlicmFyeShyZWFkeGwpDQpsaWJyYXJ5KHRpYmJsZSkNCmxpYnJhcnkodGlkeXZlcnNlKQ0KDQoNCmBgYA0KDQoNCg0KYGBge3J9DQoNCiMgUmVhZCB0aGUgRXhjZWwgZmlsZXMgaW50byBSDQpqb2JfcHJlcF9kZW1vZ3JhcGhpY3MgPC0gcmVhZF9leGNlbChoZXJlKCJkYXRhIiwgIkpvYiBQcmVwIERlbW9ncmFwaGljcy54bHN4IikpDQpqb2JfcHJlcF9ncGFfZGF0YSA8LSByZWFkX2V4Y2VsKGhlcmUoImRhdGEiLCAiSm9iIFByZXAgR1BBIERhdGEueGxzeCIpKQ0Kam9iX3ByZXBfc3VydmV5X3Jlc3VsdHMgPC0gcmVhZF9leGNlbChoZXJlKCJkYXRhIiwgIkpvYiBQcmVwIFN1cnZleSBSZXN1bHRzLnhsc3giKSkNCg0KIyBXcml0ZSB0aGUgZGF0YSB0byBDU1YgZmlsZXMgaW4gdGhlICdkYXRhJyBmb2xkZXINCndyaXRlX2Nzdihqb2JfcHJlcF9kZW1vZ3JhcGhpY3MsIGhlcmUoImRhdGEiLCAiSm9iX1ByZXBfRGVtb2dyYXBoaWNzLmNzdiIpKQ0Kd3JpdGVfY3N2KGpvYl9wcmVwX2dwYV9kYXRhLCBoZXJlKCJkYXRhIiwgIkpvYl9QcmVwX0dQQV9EYXRhLmNzdiIpKQ0Kd3JpdGVfY3N2KGpvYl9wcmVwX3N1cnZleV9yZXN1bHRzLCBoZXJlKCJkYXRhIiwgIkpvYl9QcmVwX1N1cnZleV9SZXN1bHRzLmNzdiIpKQ0KDQojIFJlYWQgdGhlIENTViBmaWxlcyBpbnRvIFIgdXNpbmcgdGhlICdoZXJlJyBwYWNrYWdlIHdpdGggdGhlIGNvcnJlY3QgcGF0aA0Kam9iX3ByZXBfZGVtb2dyYXBoaWNzIDwtIHJlYWRfY3N2KGhlcmUoImRhdGEiLCAiSm9iX1ByZXBfRGVtb2dyYXBoaWNzLmNzdiIpKQ0Kam9iX3ByZXBfZ3BhX2RhdGEgPC0gcmVhZF9jc3YoaGVyZSgiZGF0YSIsICJKb2JfUHJlcF9HUEFfRGF0YS5jc3YiKSkNCmpvYl9wcmVwX3N1cnZleV9yZXN1bHRzIDwtIHJlYWRfY3N2KGhlcmUoImRhdGEiLCAiSm9iX1ByZXBfU3VydmV5X1Jlc3VsdHMuY3N2IikpDQoNCiMgVmlldyB0aGUgZmlyc3QgZmV3IHJvd3Mgb2YgZWFjaCBkYXRhc2V0IHRvIGNvbmZpcm0gdGhleSBsb2FkZWQgY29ycmVjdGx5DQpoZWFkKGpvYl9wcmVwX2RlbW9ncmFwaGljcykNCmhlYWQoam9iX3ByZXBfZ3BhX2RhdGEpDQpoZWFkKGpvYl9wcmVwX3N1cnZleV9yZXN1bHRzKQ0KDQpgYGANCg0KDQpgYGB7cn0NCg0KIyBGdW5jdGlvbiB0byBjaGVjayBmb3IgcHJvYmxlbXMgd2l0aCB0aGUgZGF0YXNldCBhZnRlciByZWFkaW5nDQpjaGVja19wcm9ibGVtcyA8LSBmdW5jdGlvbihkZiwgZmlsZV9uYW1lKSB7DQogIHByb2JsZW1zIDwtIHByb2JsZW1zKGRmKQ0KICBpZiAobnJvdyhwcm9ibGVtcykgPiAwKSB7DQogICAgcHJpbnQocGFzdGUoIlByb2JsZW1zIGluIiwgZmlsZV9uYW1lLCAiOiIpKQ0KICAgIHByaW50KHByb2JsZW1zKQ0KICB9IGVsc2Ugew0KICAgIHByaW50KHBhc3RlKCJObyBwcm9ibGVtcyBmb3VuZCBpbiIsIGZpbGVfbmFtZSkpDQogIH0NCn0NCg0KIyBSZWFkIHRoZSBDU1YgZmlsZXMgdXNpbmcgJ2hlcmUnIHBhY2thZ2UNCmpvYl9wcmVwX2RlbW9ncmFwaGljcyA8LSByZWFkX2NzdihoZXJlKCJkYXRhIiwgIkpvYl9QcmVwX0RlbW9ncmFwaGljcy5jc3YiKSkNCmpvYl9wcmVwX2dwYV9kYXRhIDwtIHJlYWRfY3N2KGhlcmUoImRhdGEiLCAiSm9iX1ByZXBfR1BBX0RhdGEuY3N2IikpDQpqb2JfcHJlcF9zdXJ2ZXlfcmVzdWx0cyA8LSByZWFkX2NzdihoZXJlKCJkYXRhIiwgIkpvYl9QcmVwX1N1cnZleV9SZXN1bHRzLmNzdiIpKQ0KDQojIENoZWNrIGZvciBwcm9ibGVtcyB3aXRoIGVhY2ggZGF0YXNldA0KY2hlY2tfcHJvYmxlbXMoam9iX3ByZXBfZGVtb2dyYXBoaWNzLCAiSm9iX1ByZXBfRGVtb2dyYXBoaWNzLmNzdiIpDQpjaGVja19wcm9ibGVtcyhqb2JfcHJlcF9ncGFfZGF0YSwgIkpvYl9QcmVwX0dQQV9EYXRhLmNzdiIpDQpjaGVja19wcm9ibGVtcyhqb2JfcHJlcF9zdXJ2ZXlfcmVzdWx0cywgIkpvYl9QcmVwX1N1cnZleV9SZXN1bHRzLmNzdiIpDQoNCiMgQ2hlY2sgZm9yIG1pc3NpbmcgdmFsdWVzDQpjaGVja19taXNzaW5nKGpvYl9wcmVwX2RlbW9ncmFwaGljcykNCmNoZWNrX21pc3Npbmcoam9iX3ByZXBfZ3BhX2RhdGEpDQpjaGVja19taXNzaW5nKGpvYl9wcmVwX3N1cnZleV9yZXN1bHRzKQ0KDQojIENoZWNrIGZvciBkdXBsaWNhdGUgcm93cw0KY2hlY2tfZHVwbGljYXRlcyhqb2JfcHJlcF9kZW1vZ3JhcGhpY3MpDQpjaGVja19kdXBsaWNhdGVzKGpvYl9wcmVwX2dwYV9kYXRhKQ0KY2hlY2tfZHVwbGljYXRlcyhqb2JfcHJlcF9zdXJ2ZXlfcmVzdWx0cykNCg0KIyBDaGVjayBmb3IgZGF0YSB0eXBlcw0KY2hlY2tfZGF0YV90eXBlcyhqb2JfcHJlcF9kZW1vZ3JhcGhpY3MpDQpjaGVja19kYXRhX3R5cGVzKGpvYl9wcmVwX2dwYV9kYXRhKQ0KY2hlY2tfZGF0YV90eXBlcyhqb2JfcHJlcF9zdXJ2ZXlfcmVzdWx0cykNCg0KIyBTdW1tYXJ5IHN0YXRpc3RpY3MgZm9yIG51bWVyaWNhbCBjb2x1bW5zDQpjaGVja19zdW1tYXJ5X3N0YXRzKGpvYl9wcmVwX2RlbW9ncmFwaGljcykNCmNoZWNrX3N1bW1hcnlfc3RhdHMoam9iX3ByZXBfZ3BhX2RhdGEpDQpjaGVja19zdW1tYXJ5X3N0YXRzKGpvYl9wcmVwX3N1cnZleV9yZXN1bHRzKQ0KDQojIENoZWNrIGZvciBvdXRsaWVycyBpbiBudW1lcmljYWwgY29sdW1ucw0KY2hlY2tfb3V0bGllcnMoam9iX3ByZXBfZGVtb2dyYXBoaWNzKQ0KY2hlY2tfb3V0bGllcnMoam9iX3ByZXBfZ3BhX2RhdGEpDQpjaGVja19vdXRsaWVycyhqb2JfcHJlcF9zdXJ2ZXlfcmVzdWx0cykNCg0KYGBgDQoNCg==</div>
 
 
 
