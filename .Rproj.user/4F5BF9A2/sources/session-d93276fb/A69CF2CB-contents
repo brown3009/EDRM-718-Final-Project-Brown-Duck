@@ -1,0 +1,245 @@
+---
+title: "EDRM 718 Exercise Set E"
+output:
+  author: "Adam Brown"
+  html_document:
+    df_print: paged
+---
+
+*Put your name as the author of this notebook in the YAML, then complete each of the items below. Make sure that your notebook is neat and organized and that all your code chunks run without error, even after clearing the environment. (Six points per item)*
+
+***
+
+**For items 1 through 4 use the HSB2 data to illustrate how each of the four members of the *apply* family works. Do this by using the correct family member to accomplish each of the following tasks for the five test scores (not the entire data set). Make sure to use each family member for one, and only one, item.**
+
+***
+
+```{r}
+
+# Reading in the data hsb2 here.
+
+library(here)
+
+HSB2 <- read.csv(here("data", "hsb2.csv"))
+
+```
+
+
+**1. Put the standard deviation (SD) of each test as an element in a list of the five SDs.**
+
+```{r}
+
+# Creating a list of SD for hsb2.
+
+sd_list <- list(read = sd(HSB2$read), write = sd(HSB2$write), math = sd(HSB2$math), science = sd(HSB2$science), socst = sd(HSB2$socst))
+
+# Display results.
+
+sd_list
+
+```
+
+
+***
+
+**2. Create a vector of SDs for the five tests.**
+
+```{r}
+
+# Creating a vector of SDs for the five tests.
+
+sd_vector <- c(
+  read = sd(HSB2$read),
+  write = sd(HSB2$write),
+  math = sd(HSB2$math),
+  science = sd(HSB2$science),
+  socst = sd(HSB2$socst)
+)
+
+# Display the results.
+
+sd_vector
+
+```
+
+
+***
+
+**3. Create a vector of the standard deviation of the five test scores for each student in the sample.**
+
+```{r}
+
+# Creating a vector of the SD of the five test scores for each student.
+
+student_sd <- apply(HSB2[, c("read", "write", "math", "science", "socst")], 1, sd)
+
+# Display results.
+
+student_sd
+
+
+```
+
+
+***
+
+**4. Obtain SDs for the five tests by school type (i.e., public or private).**
+
+```{r}
+
+# Creating SDs for the five tests by school type.
+
+sd_by_school <- aggregate(. ~ schtyp, data = HSB2[, c("schtyp", "read", "write", "math", "science", "socst")], FUN = sd)
+
+sd_by_school
+
+```
+
+
+***
+
+**5. Using the list you created in item 1, store the reading standard deviation from this list in three new objects, *read_sd_1*, *read_sd_2*, and *read_sd_3* to demonstrate the use of these three operators: [ ], [[ ]], and $. Examine the class of each object and briefly explain why this is the class.**
+
+```{r}
+
+# Storing the reading SDs from the list in item 1 to three new objects.
+
+read_sd_1 <- sd_list["read"]
+read_sd_2 <- sd_list[["read"]]
+read_sd_3 <- sd_list$read 
+
+# Explain: the last two are both numeric but in the second one, this would work no matter the name someone else gave to it in their data set.
+
+```
+
+
+```{r}
+
+# Showing the class of each of the new objects.
+
+class(read_sd_1)
+class(read_sd_2)
+class(read_sd_3)
+```
+
+***
+
+**In an early exercise set you created vectors and a data frame that included the names of some of the members of our class, email addresses, and the distance we each travel to our class meetings. For the exercises below you will use these same data for all students in our class. (At least one member from each of the previous groups will need to share the data for their group. You may use the Research Cafe, or other means if you prefer, to do this.) You will use this combined data set for the following items, though you should just include the current members of our class. The class member profiles is current, so you can use that if you need a reminder of who is currently in the class.**
+
+***
+
+**6. Create a data frame named *our_class* that includes these variables, in order: *first_name*, *last_name*, *email*, *distance*.**
+
+
+```{r}
+
+# Create vectors for each variable. 
+
+# Create the data frame
+
+our_class <- data.frame(
+  first_name = c("Adam", "Aishwarya", "Alison", "Beatrice", "Benny", "Brandi", "Emily", "Gitanjali", "Halle", 
+                 "Irene", "Jongwon", "Julia", "Kaitlyn", "Kartik", "Matt", "Nestor", "Regin", "Saeed", "Samin", 
+                 "Sayema", "Supraja", "Unum"),
+  last_name = c("Brown", "Khemkar", "Scheide", "Quiroz", "Thoms-warzecha", "Byers", "Lorbach", "Lall", "Prine", 
+                "Esu", "Lee", "Barnes", "Ramey", "Midha", "Marquiez auza", "Urrea romero", "Dean", "Ahmadi", 
+                "Ashjaei", "Akter", "Arikumar", "Aslam"),
+  email = c("Adam.brown@moore.sc.edu", "akhemkar@email.sc.edu", "scheidea@mailbox.sc.edu", "bnquiroz@email.sc.edu", 
+            "thomswab@email.sc.edu", "byersb@mailbox.sc.edu", "lohrbach@email.sc.edu", "glall@email.sc.edu", 
+            "hprine@email.sc.edu", "iesu@email.sc.edu", "lee1125@sc.edu", "jab30@mailbox.sc.edu", 
+            "ktramey@email.sc.edu", "kmidha@email.sc.edu", "mateom@email.sc.edu", "nfu@email.sc.edu", 
+            "regin@email.sc.edu", "ahmadis@email.sc.edu", "sashjaei@email.sc.edu", "sakter@email.sc.edu", 
+            "Srikumar@email.sc.edu", "uaslam@email.sc.edu"),
+  distance = c(12, 1, 5, 5, 2, 19, 1, 1, 7, 1, 19, 2, 5, 3, 1, 2, 2, 0, 1, 1, 1, 2)
+)
+
+
+# Display results.
+
+our_class
+
+```
+
+
+***
+
+**7. Change our_class so that *last_name* is in the column before *first_name*. Do this without creating a new data frame.**
+
+```{r}
+
+# Reorder columns so that last_name comes before first_name.
+
+our_class <- our_class[, c("last_name", "first_name", "email", "distance")]
+
+# Display results.
+
+our_class
+
+```
+
+
+***
+
+**9. Use *our_class* to create a new data frame called *far_members* that contains the data for class members who travel at least 10 miles to class.**
+
+```{r}
+
+# Create far_members data frame with members traveling at least 10 miles.
+
+far_members <- our_class[our_class$distance >= 10, ]
+
+# Display results.
+
+far_members
+
+```
+
+
+***
+
+**10. Report the number of rows in the *far_members* data frame. Do not count by hand. Let R do the work.**
+
+```{r}
+
+# Get the number of rows in far_members.
+
+num_far_members <- nrow(far_members)
+
+# Display the result.
+
+num_far_members
+
+```
+
+
+***
+
+**11. The row names in *far_members* carried over from *our_class*. Change this so that they are in consecutive order. Write your code so it will work no matter how many rows are in *far_members*.**
+
+```{r}
+
+# Reset row names to be consecutive.
+
+rownames(far_members) <- seq_len(nrow(far_members))
+
+# Display results.
+
+far_members
+
+```
+
+
+***
+
+**12. In one code statement, show all the information for the class member who travels the farthest to class. This should work even if we change the data in *our_class*.**
+
+```{r}
+
+# Show the class member(s) who travels the farthest.
+
+our_class[which(our_class$distance == max(our_class$distance)), ]
+
+```
+
+
+***

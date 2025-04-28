@@ -1,0 +1,166 @@
+---
+title: "EDRM 718 Exercise Set G"
+output:
+  author: "Adam Brown"
+  html_document:
+    df_print: paged
+---
+
+*Put your name as the author of this notebook in the YAML, then complete each of the items below. Make sure that your notebook is neat and organized and that all your code chunks run without error, even after clearing the environment. (Twelve points per item)*
+
+```{r}
+
+# Running the libraries and reading in the hsb2 data file.
+
+library(here)
+
+```
+
+
+***
+
+**1. Write a script that (a) loads the Mount Juniper Elementary data into a data frame, (b) checks the score column to determine if there are missing data, and (c) prints either there are no missing data or there are missing data, depending on which of these is true.**
+
+```{r}
+
+mount_juniper <- read.csv(here("Data", "Mount Juniper Elementary Data.csv"), header = TRUE, sep = ",")
+
+```
+
+
+```{r}
+
+# Checking the score column for missing data.
+
+any_missing <- any(is.na(mount_juniper$score))
+
+# Print a message depending on whether missing data exist.
+
+if (any_missing) {
+  cat("There are missing data.\n")
+} else {
+  cat("There are no missing data.\n")
+}
+
+
+```
+
+
+
+
+***
+
+**2. Consider a population of normally distributed scores with a mean of 100 and a standard deviation of 15. Write a script to draw 1,000 random samples, each of size 40, from this population. Calculate and store each mean in a vector of means. Compare the mean and standard deviation of the population with the mean and standard deviation of the vector of means. What statistical characteristics of the mean do these comparisons illustrate? (Hint: You will need to initialize a vector object by assigning it *NULL* prior to using it in a loop.)**
+
+```{r}
+# Set up the population parameters.
+
+pop_mean <- 100
+pop_sd <- 15
+
+# Parameters for sampling.
+
+n_samples <- 1000
+sample_size <- 40
+
+# Vector to store the means.
+
+sample_means <- NULL
+
+# Draw 1,000 random samples from the population and store their means.
+
+for (i in 1:n_samples) {
+  
+  # Draw a random sample of size 40.
+  
+  sample_data <- rnorm(sample_size, mean = pop_mean, sd = pop_sd)
+  
+  # Calculate the mean of this sample and store it.
+  
+  sample_means[i] <- mean(sample_data)
+}
+
+# Compare the population mean/sd with the mean/sd of the sample means.
+
+cat("Population Mean:", pop_mean, "\n")
+cat("Population SD:", pop_sd, "\n\n")
+
+cat("Mean of sample means:", mean(sample_means), "\n")
+cat("SD of sample means:", sd(sample_means), "\n")
+
+# Theoretical SD of sample means.
+
+cat("Theoretical SD of the sampling distribution:",
+    pop_sd / sqrt(sample_size), "\n")
+
+
+# These statistics show that the theoretical SD of the sampling distribution is, when rounding, the same as the SD of sample means which tells us the individual sample means cluster more tightly around the true mean  as sample size increases, which is the Central Limit Theorem. The mean of the sample means, or Mu, is very close to the population mean which tells us that the sample mean is an unbiased estimator of the population mean. 
+
+```
+
+
+***
+
+**3. Write a script that will count in your console pane from 0, in increments of 10, up through 1,000. Do three different versions of the script: (a) with a for loop, (b) with a while loop, and (c) with a repeat and break structure.**
+
+```{r}
+
+# Using for loop.
+
+for(i in seq(0, 1000, by = 10)) {
+  cat(i, "\n")
+}
+
+```
+```{r}
+
+# Using while loop.
+
+i <- 0
+while(i <= 1000) {
+  cat(i, "\n")
+  i <- i + 10
+}
+
+```
+
+
+```{r}
+
+# Using repeat loop with break.
+
+i <- 0
+repeat {
+  cat(i, "\n")
+  i <- i + 10
+  if(i > 1000) {
+    break
+  }
+}
+```
+
+
+
+***
+
+**4. The Secret Code file contains a hidden message. Use nested for loops to reveal the message by pasting together the characters in every 8th position (i.e., positions 8, 16, 24, and 32) on all 23 rows. (Hint: The *paste* function should come in handy.)**
+
+```{r}
+# Read the CSV into a data frame and decode the message.
+
+secret_df <- read.csv(here("Data", "Secret Code.csv"), header = FALSE)
+
+decrypted_code <- NULL
+
+for (i in 1:23) {
+  for(j in 1:4) {
+    decrypted_code <- paste(decrypted_code, secret_df[i, j*8], sep = "")
+  }
+}
+
+decrypted_code
+
+```
+
+
+***

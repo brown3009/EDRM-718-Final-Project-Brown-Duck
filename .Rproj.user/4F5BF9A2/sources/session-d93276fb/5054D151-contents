@@ -1,0 +1,161 @@
+---
+title: "EDRM 718 Exercise Set L"
+author: "Adam Brown"
+date: "`r Sys.Date()`"
+format: html
+---
+
+*Put your name as the author of this notebook in the YAML, then complete each of the items below. Make sure that your notebook is neat and organized and that all your code chunks run without error, even after clearing the environment. (Twelve points per item)*
+
+***
+
+These exercises are about tidying data. For each data set, take four steps.
+
+1. Import the data.
+2. Tidy the data. Make any missing data explicit.
+3. Write the tidy data into the data folder in a file with the same name except replacing the word *messy* with *tidy* in the file name.
+4. Print the data so that the knit version will show the complete tidy data set.
+
+You may use both the tidyverse and Base R to complete these tasks.
+
+***
+
+```{r}
+
+library(tidyverse)
+library(here)
+
+```
+
+
+**1. Tidy the *messy_sales.csv* file.**
+
+```{r}
+
+# Importing messy data.
+
+messy_sales <- read.csv(here("data", "messy_sales.csv"))
+
+# Tidying data.
+
+tidy_sales <- messy_sales %>%
+  pivot_longer(
+    cols = starts_with("X"), 
+    names_to = "Month", 
+    values_to = "Sales"
+  ) %>%
+  mutate(Month = str_remove(Month, "X")) %>%
+  mutate(Month = str_remove(Month, "_Sales")) %>%
+  replace_na(list(Sales = 0)) %>%
+  rename(
+    Year = Month,
+    Units = Sales
+  )
+
+# Exporting data.
+
+write_csv(tidy_sales, here("data", "tidy_sales.csv"))
+
+# Displaying data.
+
+tidy_sales
+
+```
+
+
+***
+
+**2. Tidy the *messy_weather.csv* file.**
+
+```{r}
+
+# Importing messy data.
+
+messy_weather <- read.csv(here("data", "messy_weather.csv"))
+
+# Tidying and sorting data.
+
+tidy_weather <- messy_weather %>%
+  pivot_longer(
+    cols = c(Morning_Temp, Afternoon_Temp),
+    names_to = "Time",
+    values_to = "Temperature"
+  ) %>%
+  mutate(Time = str_remove(Time, "_Temp")) %>%
+  replace_na(list(Temperature = NA)) %>%
+  arrange(Location)
+
+# Exporting data.
+
+write_csv(tidy_weather, here("data", "tidy_weather.csv"))
+
+# Displaying data.
+
+tidy_weather
+```
+
+
+***
+
+**3. Tidy the *messy_survey.csv* file.**
+
+```{r}
+
+# Importing messy data.
+
+messy_survey <- read.csv(here("data", "messy_survey.csv"))
+
+# Tidying data.
+
+tidy_survey <- messy_survey %>%
+  separate_rows(Responses, sep = ";") %>%
+  rename(Response = Responses)
+
+# Exporting data.
+
+write_csv(tidy_survey, here("data", "tidy_survey.csv"))
+
+# Displaying data.
+
+tidy_survey
+
+
+```
+
+
+
+***
+
+**4. Tidy the *messy_patients.csv* file.**
+
+```{r}
+
+# Importing messy data.
+
+messy_patients <- read.csv(here("data", "messy_patients.csv"))
+
+# Tidying and sorting data.
+
+tidy_patients <- messy_patients %>%
+  pivot_longer(
+    cols = -ID,
+    names_to = "Treatment_Day",
+    values_to = "Score"
+  ) %>%
+  separate(Treatment_Day, into = c("Treatment", "Day"), sep = "_") %>%
+  replace_na(list(Score = NA)) %>%
+  arrange(Treatment)
+
+# Exporting data.
+
+write_csv(tidy_patients, here("data", "tidy_patients.csv"))
+
+# Displaying data.
+
+print(tidy_patients, n = Inf, width = Inf)
+
+```
+
+
+
+***

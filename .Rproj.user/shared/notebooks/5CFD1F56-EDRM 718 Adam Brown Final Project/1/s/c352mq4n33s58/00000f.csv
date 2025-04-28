@@ -1,0 +1,28 @@
+"0",""
+"0","# Read the CSV files into R using the 'here' package with the correct path"
+"0","job_prep_demographics <- read_csv(here(""data"", ""Job_Prep_Demographics.csv""), col_names = FALSE)"
+"2","[1mRows: [22m[34m766[39m [1mColumns: [22m[34m4[39m"
+"2","[36m──[39m [1mColumn specification[22m [36m─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m (4): X1, X2, X3, X4"
+"2","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."
+"0","job_prep_gpa_data <- read_csv(here(""data"", ""Job_Prep_GPA_Data.csv""), col_names = FALSE)"
+"2","[1mRows: [22m[34m744[39m [1mColumns: [22m[34m8[39m"
+"2","[36m──[39m [1mColumn specification[22m [36m─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m (8): X1, X2, X3, X4, X5, X6, X7, X8"
+"2","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."
+"0","job_prep_survey_results <- read_csv(here(""data"", ""Job_Prep_Survey_Results.csv""), col_names = FALSE)"
+"2","[1mRows: [22m[34m537[39m [1mColumns: [22m[34m15[39m"
+"2","[36m──[39m [1mColumn specification[22m [36m─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m (15): X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15"
+"2","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."
+"0","# View the first few rows of each dataset to confirm they loaded correctly"
+"0","head(job_prep_demographics)"

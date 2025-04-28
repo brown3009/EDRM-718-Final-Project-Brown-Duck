@@ -1,0 +1,268 @@
+---
+title: "EDRM 718 Exercise Set I"
+author: "Adam Brown"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+---
+
+*Put your name as the author of this notebook in the YAML, then complete each of the items below. Make sure that your notebook is neat and organized and that all your code chunks run without error, even after clearing the environment. (Twelve points per item)*
+
+***
+
+**1. Write the function *hello_world* that will return the string of characters "Hello World!". Call your function with a print statement to announce your presence to the world.**
+
+```{r}
+
+# Define the function.
+
+hello_world <- function() {
+  return("Hello World!")
+}
+
+# Display results.
+
+print(hello_world())
+
+
+```
+
+
+***
+
+**2. Write the function *mean_median* that will take a numeric vector as an argument and return a two-item named vector with the mean and median. Demonstrate the use of the function with 50 random numbers from a distribution of your choice.**
+
+```{r}
+
+# Setup the function.
+
+mean_median <- function(x) {
+  return(c(Mean = mean(x), Median = median(x)))
+}
+
+# Generate 50 random numbers from a normal distribution with mean = 100, sd = 15.
+
+random_numbers <- rnorm(50, mean = 100, sd = 15)
+
+# Display results with a function.
+
+mean_median(random_numbers)
+
+```
+
+
+***
+
+**3. Write the function *cool_mean()* that you give two arguments: a numeric vector and an integer scalar. The function should calculate the mean of the vector and return this rounded to the number of digits indicated by the scalar. Make *2* be the default number of digits when the scalar is not provided. Demonstrate this function three times with the same 50 random numbers drawn from a distribution of your choice. First, do not include the scalar. Second, set the scalar to *0*. Finally, set the scalar to *4*.**
+
+```{r}
+
+# Setup the function.
+
+cool_mean <- function(x, digits = 2) {
+  return(round(mean(x), digits))
+}
+
+# Generate 50 random numbers from a normal distribution.
+
+set.seed(42)  
+random_numbers <- rnorm(50, mean = 100, sd = 15)
+
+# Demonstrate function without digits and display results.
+
+print(cool_mean(random_numbers))  
+
+# Demonstrate function with digits set to 0 and display results.
+
+print(cool_mean(random_numbers, 0))
+
+# Demonstrate function with digits set to 4 and display results.
+
+print(cool_mean(random_numbers, 4))
+
+```
+
+
+***
+
+**4. Rewrite *cool_mean()* so that it checks to make sure that the vector is numeric and the scalar is an integer. Also make sure that the scalar is within range (non-negative). When one of these conditions is not the case, it should print "Please use the correct numeric types and ranges for the arguments." Demonstrate (a) correct use, (b) use with a non-numeric vector, and (c) use with a negative scalar.**
+
+```{r}
+
+# Define the function.
+
+cool_mean <- function(x, digits = 2) {
+  
+  # Check if 'x' is numeric.
+  
+  if (!is.numeric(x)) {
+    return("Please use the correct numeric types and ranges for the arguments.")
+  }
+  
+  # Check if 'digits' is a non-negative integer.
+  
+  if (!is.numeric(digits) || digits < 0 || digits != as.integer(digits)) {
+    return("Please use the correct numeric types and ranges for the arguments.")
+  }
+  
+  # Calculate and return the rounded mean.
+  
+  return(round(mean(x), digits))
+}
+
+# Generate 50 random numbers from a normal distribution.
+
+set.seed(42)
+random_numbers <- rnorm(50, mean = 100, sd = 15)
+
+# Default case.
+
+print(cool_mean(random_numbers))  
+
+# Non-numeric vector.
+
+print(cool_mean(c("a", "b", "c", "d"), 2))  
+
+# Negative scalar for rounding.
+
+print(cool_mean(random_numbers, -2))
+
+```
+
+
+***
+
+**5. When the Base R *summary()* function is given a numeric vector, it returns a named numeric vector with the five-number summary and the mean. The mean is always printed after the median, even when it is smaller than the median. Write the function *ordered_summary()* that will still provide the five-number summary and the mean, but now will do so in ascending numerical order. Demonstrate it with (a) 50 random numbers from a normal distribution such that the mean is greater than the median and (b) 50 random numbers from a normal distribution such that the mean is less than the median. Do not use the *set.seed()* function.**
+
+```{r}
+
+# Define the function.
+
+ordered_summary <- function(x) {
+ 
+   # Check to ensure x is numeric.
+  
+  if (!is.numeric(x)) {
+    return("Error: Input must be a numeric vector.")
+  }
+  
+  # Five-number summary and mean.
+  
+  summary_values <- c(summary(x), Mean = mean(x))
+  
+  # Sort values in ascending order.
+  
+  return(sort(summary_values))
+}
+
+# Generate 50 random numbers where mean > median.
+
+normal_high_mean <- rnorm(50, mean = 105, sd = 10)
+print(ordered_summary(normal_high_mean))
+
+# Generate 50 random numbers where mean < median.
+
+normal_low_mean <- rnorm(50, mean = 95, sd = 10)
+print(ordered_summary(normal_low_mean))
+
+```
+
+
+***
+
+**6. Write the function *mean_ci()* that is provided a numeric vector and a level of confidence (with a default of 0.95) and returns a list that includes the sample size, the sample mean, the sample standard deviation, the standard error, and a two-item named vector with the lower and upper bounds of the confidence interval. Demonstrate this function (a) by letting R print out the list and (b) by storing the list and then using it to print out only the confidence interval rounded to two decimal places. For your demonstration, use 200 numbers drawn at random from a normal distribution. Also report on whether the confidence interval included the true parameter or resulted in a Type I error. Use the *set.seed()* function so that your report of results will stay constant.**
+
+```{r}
+
+# Define the function.
+
+mean_ci <- function(x, conf_level = 0.95) {
+  
+  # Ensure x is numeric.
+  
+  if (!is.numeric(x)) {
+    return("Error: Input must be a numeric vector.")
+  }
+  
+  # Sample size.
+  
+  n <- length(x)
+  
+  # Sample mean.
+  
+  mean_x <- mean(x)
+  
+  # Sample standard deviation.
+  
+  sd_x <- sd(x)
+  
+  # Standard Error.
+  
+  se_x <- sd_x / sqrt(n)
+  
+  # Critical t-value for confidence interval.
+  
+  t_value <- qt((1 + conf_level) / 2, df = n - 1)
+  
+  # Compute confidence interval bounds.
+  
+  ci_lower <- mean_x - t_value * se_x
+  ci_upper <- mean_x + t_value * se_x
+  
+  # Return results as a list.
+  
+  return(list(
+    Sample_Size = n,
+    Mean = mean_x,
+    SD = sd_x,
+    SE = se_x,
+    CI = c(Lower_Bound = ci_lower, Upper_Bound = ci_upper)
+  ))
+}
+
+# Set seed.
+
+set.seed(123)
+
+# Generate 200 random numbers from a normal distribution.
+
+random_sample <- rnorm(200, mean = 100, sd = 15)
+
+# Print the full list from the function.
+
+ci_results <- mean_ci(random_sample)
+print(ci_results)
+
+
+```
+```{r}
+
+# Extract and display only the confidence interval.
+
+ci_bounds <- round(ci_results$CI, 2)
+print(ci_bounds)
+
+
+```
+
+
+```{r}
+
+# True population mean (100) is within the confidence interval.
+
+true_mean_in_ci <- (100 >= ci_results$CI["Lower_Bound"] & 100 <= ci_results$CI["Upper_Bound"])
+
+# Display whether a Type I error occurred.
+
+if (true_mean_in_ci) {
+  message("The confidence interval includes the true mean (100). No Type I error.")
+} else {
+  message("The confidence interval does NOT include the true mean (100). Type I error occurred.")
+}
+
+
+```
+
+
+***

@@ -1,0 +1,366 @@
+---
+title: "EDRM 718 Exercise Set M"
+author: "Adam Brown"
+date: "`r Sys.Date()`"
+format: html
+---
+
+*Put your name as the author of this notebook in the YAML, then complete each of the items below. Make sure that your notebook is neat and organized and that all your code chunks run without error, even after clearing the environment. (Six points per item)*
+
+***
+
+*These exercises are about importing, tidying, and analyzing the Johnson Elementary ELA Project data. You will need to create a CSV file from the Excel file, but do not change either the Excel or CSV file prior to completing these exercises. For each item that involves changing the tibble, save the result so that you can use the new tibble in the next exercise. You may overwrite the previous tibble with the revised tibble by using the same tibble name.*
+
+```{r}
+
+library(tidyverse)
+library(readr)
+library(here)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+```
+
+
+***
+
+**1. Import the *Johnson Elementary ELA Project* data into a tibble. Use the *col_types* and *col_names* arguments to specify each variable type and to name the variables with the following names: Room, ID, Tard_Abs, Q1, Q2, Q3, and Q4.**
+
+```{r}
+
+# Importing Johnson Elementary Data.
+
+johnson_ela <- read_csv(
+  file = here("data", "Johnson Elementary ELA Project.csv"),
+  col_names = c("Room", "ID", "Tard_Abs", "Q1", "Q2", "Q3", "Q4"),
+  col_types = cols(
+    Room = col_character(),
+    ID = col_integer(),
+    Tard_Abs = col_character(),
+    Q1 = col_integer(),
+    Q2 = col_integer(),
+    Q3 = col_integer(),
+    Q4 = col_integer()
+  ),
+  skip = 1
+)
+
+# Viewing the data.
+
+johnson_ela
+
+```
+
+
+***
+
+**2. Check for problems that occurred during the import and fix these problems. If there were no problems, report that there were no problems.**
+
+```{r}
+
+# Checking for any problems that occurred during import.
+
+import_issues <- problems(johnson_ela)
+
+# Viewing the problems.
+
+if (nrow(import_issues) > 0) {
+  print("Problems were found during import:")
+  print(import_issues)
+} else {
+  print("No problems were found during import.")
+}
+
+
+```
+
+```{r}
+# Remove the first three rows after the header.
+
+johnson_ela_clean <- johnson_ela %>%
+  slice(-1:-3)
+
+# Verify that the rows have been removed.
+
+head(johnson_ela_clean)
+```
+
+
+
+*** There were problems with the first three rows after the headers, so I removed those since they are not needed for the exercises.
+
+***
+
+**3. Fill in the *Room* variable so that the correct room is on each row.**
+
+```{r}
+
+# Filling in the Room values.
+
+johnson_ela_filled <- johnson_ela_clean %>%
+  fill(Room, .direction = "down")
+
+# Viewing the data.
+
+johnson_ela_filled
+
+```
+
+
+***
+
+**4. Filter out rows that do not contain any project data.**
+
+```{r}
+
+# Filtering out rows that do not contain any project data.
+
+johnson_ela_cleaned2 <- johnson_ela_filled %>%
+  filter(if_any(c(ID, Tard_Abs, Q1, Q2, Q3, Q4), ~ !is.na(.)))
+
+# Viewing the data.
+
+johnson_ela_cleaned2
+
+```
+
+
+***
+
+**5. For the *Room* variable, separate the word "Room" into a variable named *Temp* and the number of the room into a variable named *Room*.**
+
+```{r}
+
+# Separating Room into Temp and Room.
+
+johnson_ela_split <- johnson_ela_cleaned2 %>%
+  separate(col = Room, into = c("Temp", "Room"), sep = " ")
+
+# Viewing the result.
+
+johnson_ela_split
+
+```
+
+
+***
+
+**6. Delete the *Temp* variable from the tibble.**
+
+```{r}
+
+# Deleting the Temp variable.
+
+johnson_ela_final <- johnson_ela_split %>%
+  select(-Temp)
+
+# Viewing the result.
+
+johnson_ela_final
+
+```
+
+
+***
+
+**7. Separate the *Tard_Abs* variable into a variable named *Tardies* that contains the tardy count and one named *Absences* that contains the absence count.**
+
+```{r}
+
+# Separating Tard_Abs into Tardies.
+
+johnson_ela_final <- johnson_ela_final %>%
+  separate(Tard_Abs, into = c("Tardies", "Absences"), sep = ";", convert = TRUE)
+
+# Viewing the result.
+
+johnson_ela_final
+
+```
+
+
+***
+
+**8. Change the *Q1*, *Q2*, *Q3*, and *Q4* variables into two variables: one named *Quarter* that contains the quarter and one named *Rating* that contains the rating earned by the student in that quarter.**
+
+```{r}
+
+# Changing the *Q1*, *Q2*, *Q3*, and *Q4* variables into two variables.
+
+johnson_ela_final <- johnson_ela_final %>%
+  pivot_longer(
+    cols = starts_with("Q"),
+    names_to = "Quarter",
+    values_to = "Rating"
+  )
+
+# Viewing the result.
+
+johnson_ela_final
+
+```
+
+
+***
+
+**9. Create a code chunk in which you redo all the previous items. First, clear the environment. Then read in the data and fix problems (if necessary) as you did before. Finally, show how to tidy the data in one set of piped functions.**
+
+```{r}
+
+# Step 1: Clear environment.
+
+rm(list = ls())
+
+# Importing Johnson Elementary Data.
+
+johnson_ela <- read_csv(
+  file = here("data", "Johnson Elementary ELA Project.csv"),
+  col_names = c("Room", "ID", "Tard_Abs", "Q1", "Q2", "Q3", "Q4"),
+  col_types = cols(
+    Room = col_character(),
+    ID = col_integer(),
+    Tard_Abs = col_character(),
+    Q1 = col_integer(),
+    Q2 = col_integer(),
+    Q3 = col_integer(),
+    Q4 = col_integer()
+  ),
+  skip = 1
+)
+
+# Remove the first three rows after the header.
+
+johnson_ela_clean <- johnson_ela %>%
+  slice(-1:-3)
+
+# Filling in the Room values.
+
+johnson_ela_filled <- johnson_ela_clean %>%
+  fill(Room, .direction = "down")
+
+# Filtering out rows that do not contain any project data.
+
+johnson_ela_cleaned2 <- johnson_ela_filled %>%
+  filter(if_any(c(ID, Tard_Abs, Q1, Q2, Q3, Q4), ~ !is.na(.)))
+
+# Separating Room into Temp and Room.
+
+johnson_ela_split <- johnson_ela_cleaned2 %>%
+  separate(col = Room, into = c("Temp", "Room"), sep = " ")
+
+# Deleting the Temp variable.
+
+johnson_ela_final <- johnson_ela_split %>%
+  select(-Temp)
+
+# Separating Tard_Abs into Tardies.
+
+johnson_ela_final <- johnson_ela_final %>%
+  separate(Tard_Abs, into = c("Tardies", "Absences"), sep = ";", convert = TRUE)
+
+# Changing the *Q1*, *Q2*, *Q3*, and *Q4* variables into two variables.
+
+johnson_ela_final <- johnson_ela_final %>%
+  pivot_longer(
+    cols = starts_with("Q"),
+    names_to = "Quarter",
+    values_to = "Rating"
+  )
+
+# Viewing the result.
+
+print(johnson_ela_final, n = 20)
+
+```
+
+
+***
+
+**10. Provide summary statistics for the number of tardies for each room.**
+
+```{r}
+
+# Creating summary statistics for Tardies.
+
+johnson_ela_final %>%
+  group_by(Room) %>%
+  summarise(
+    Mean_Tardies = mean(Tardies, na.rm = TRUE),
+    Median_Tardies = median(Tardies, na.rm = TRUE),
+    Min_Tardies = min(Tardies, na.rm = TRUE),
+    Max_Tardies = max(Tardies, na.rm = TRUE),
+    SD_Tardies = sd(Tardies, na.rm = TRUE),
+    Count = n()
+  ) %>%
+  arrange(Room)
+
+```
+
+
+***
+
+**11. Provide summary statistics for the number of absences for each room.**
+
+```{r}
+
+# Creating summary statistics for number of absences.
+
+johnson_ela_final %>%
+  group_by(Room) %>%
+  summarise(
+    Mean_Absences = mean(Absences, na.rm = TRUE),
+    Median_Absences = median(Absences, na.rm = TRUE),
+    Min_Absences = min(Absences, na.rm = TRUE),
+    Max_Absences = max(Absences, na.rm = TRUE),
+    SD_Absences = sd(Absences, na.rm = TRUE),
+    Count = n()
+  ) %>%
+  arrange(Room)
+
+
+```
+
+
+***
+
+**12. Show the frequency of missing data points for each quarter by room.**
+
+```{r}
+
+# Showing frequency of missing data point for each quarter by room.
+
+johnson_ela_final %>%
+  group_by(Room, Quarter) %>%
+  summarise(Missing_Count = sum(is.na(Rating)), .groups = "drop") %>%
+  arrange(Room, Quarter)
+
+```
+
+
+***
+
+**13. Construct a graph that facets by room and illustrates the median rating trends across the four quarters for each of the fifth-grade classes.**
+
+```{r}
+
+# Graphing facets by room across four quarters for each fifth grade classes.
+
+johnson_ela_final %>%
+  group_by(Room, Quarter) %>%
+  summarise(Median_Rating = median(Rating, na.rm = TRUE), .groups = "drop") %>%
+  ggplot(aes(x = Quarter, y = Median_Rating, group = Room)) +
+  geom_line(color = "steelblue", size = 1) +
+  geom_point(color = "steelblue", size = 2) +
+  facet_wrap(~ Room) +
+  labs(
+    title = "Median Rating Trends Across Quarters by Room",
+    x = "Quarter",
+    y = "Median Rating"
+  ) +
+  theme_minimal()
+
+```
+
+
+***

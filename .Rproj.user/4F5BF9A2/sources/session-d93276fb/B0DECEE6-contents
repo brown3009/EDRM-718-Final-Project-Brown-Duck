@@ -1,0 +1,221 @@
+---
+title: "EDRM 718 Exercise Set H"
+output:
+  author: "Adam Brown"
+  html_document:
+    df_print: paged
+---
+
+*Put your name as the author of this notebook in the YAML, then complete each of the items below. Make sure that your notebook is neat and organized and that all your code chunks run without error, even after clearing the environment. (Six points per item)*
+
+***
+
+**1. Create a data frame named *our_class* that includes these variables, in order: *first_name*, *last_name*, *email*, *distance*. (Note: You did this for one item of a previous exercise set, so you may want to simply copy your code chunk from that item.)**
+
+```{r}
+
+# Create the data frame.
+
+our_class <- data.frame(
+  first_name = c("Adam", "Aishwarya", "Alison", "Beatrice", "Benny", "Brandi", "Emily", "Gitanjali", "Halle", 
+                 "Irene", "Jongwon", "Julia", "Kaitlyn", "Kartik", "Matt", "Nestor", "Regin", "Saeed", "Samin", 
+                 "Sayema", "Supraja", "Unum"),
+  last_name = c("Brown", "Khemkar", "Scheide", "Quiroz", "Thoms-warzecha", "Byers", "Lorbach", "Lall", "Prine", 
+                "Esu", "Lee", "Barnes", "Ramey", "Midha", "Marquiez auza", "Urrea romero", "Dean", "Ahmadi", 
+                "Ashjaei", "Akter", "Arikumar", "Aslam"),
+  email = c("Adam.brown@moore.sc.edu", "akhemkar@email.sc.edu", "scheidea@mailbox.sc.edu", "bnquiroz@email.sc.edu", 
+            "thomswab@email.sc.edu", "byersb@mailbox.sc.edu", "lohrbach@email.sc.edu", "glall@email.sc.edu", 
+            "hprine@email.sc.edu", "iesu@email.sc.edu", "lee1125@sc.edu", "jab30@mailbox.sc.edu", 
+            "ktramey@email.sc.edu", "kmidha@email.sc.edu", "mateom@email.sc.edu", "nfu@email.sc.edu", 
+            "regin@email.sc.edu", "ahmadis@email.sc.edu", "sashjaei@email.sc.edu", "sakter@email.sc.edu", 
+            "Srikumar@email.sc.edu", "uaslam@email.sc.edu"),
+  distance = c(12, 1, 5, 5, 2, 19, 1, 1, 7, 1, 19, 2, 5, 3, 1, 2, 2, 0, 1, 1, 1, 2)
+)
+
+
+# Display results.
+
+our_class
+
+```
+
+
+***
+
+**2. Prepare to conduct a small study by using the *sample()* function to randomly select six members of the class. Store just the participants names and email addresses in a *participants* data frame. (Yes, you can be picked as a participant of your own study.)**
+
+```{r}
+
+# Randomly select 6 members from the class.
+
+selected_indices <- sample(1:nrow(our_class), 6)
+
+# Extract just the names and email of the selected members.
+
+participants <- our_class[selected_indices, c("first_name", "last_name", "email")]
+
+# Display results.
+
+participants
+
+
+```
+
+
+***
+
+**3. Randomly select three of the participants to be in the treatment condition. Add a *condition* variable to the participants data frame to indicate *control* or *treatment* for each participant. (Hint: The sample function chose participants in random order.)**
+
+```{r}
+
+# Assign 3 to treatment, and three to control.
+
+participants$condition <- c(rep("treatment", 3),
+                            rep("control", nrow(participants) - 3))
+
+# Display results.
+
+participants
+
+```
+
+
+***
+
+**4. Use the *here()* function and the *write.csv()* function to write the *participants* data frame to a CSV file, *participants.csv*, in your project *data* folder. Include the variable names as a header row in your file, but do not include row numbers.**
+
+```{r}
+
+# Write the data frame to a CSV file in data.
+
+write.csv(participants, 
+          here("data", "participants.csv"), 
+          row.names = FALSE)  # Don't include row numbers
+
+
+```
+
+
+***
+
+**5. Construct a vector *my_numbers* that consists of nine randomly chosen integers between 1 and 100 (inclusive).**
+
+```{r}
+
+# Creating my_numbers vector.
+
+my_numbers <- sample(1:100, 9)
+
+# Display results.
+
+my_numbers
+
+```
+
+
+***
+
+**6. Increase the length of *my_numbers* to 11 by putting two missing value indicators at randomly chosen locations in the vector. (Hint: It is OK to randomly reorder the numbers already in the vector.)**
+
+```{r}
+
+# Combine my_numbers with 2 missing values.
+
+my_numbers <- sample(c(my_numbers, NA, NA), 11)
+
+# View results.
+
+my_numbers
+
+```
+
+
+***
+
+**7. Increase the length of *my_numbers* to 12 by putting an infinity indicator at a randomly chosen location in the vector. (Hint: It is still OK to randomly reorder the values already in the vector.)**
+
+
+```{r}
+
+# Increase length with an Inf value to 12.
+
+
+my_numbers <- sample(c(my_numbers, Inf), 12)
+
+
+# Check the result.
+
+my_numbers
+
+```
+
+
+***
+
+**8. Use *my numbers* to illustrate what happens for every possible value of the two optional arguments of the *range()* function.**
+
+
+```{r}
+
+# Showing two optional arguments for range.
+
+my_numbers
+
+# Two arguments.
+
+for (remove_na in c(FALSE, TRUE)) {
+  for (remove_inf in c(FALSE, TRUE)) {
+    
+    
+    result <- tryCatch(
+      range(my_numbers, na.rm = remove_na, finite = remove_inf),
+      error = function(e) e
+    )
+    
+    cat(
+      "na.rm =", remove_na,
+      ", finite =", remove_inf,
+      " => range =",
+      paste(result, collapse = " "),
+      "\n"
+    )
+  }
+}
+
+
+```
+
+
+***
+
+**9. The documentation for the *range()* function states that this function can be used for character objects. Demonstrate this with the *first_name* variable in *our_class*. Based on the result, briefly explain what the function does with a character vector.**
+
+```{r}
+
+# Demonstrate range function. 
+
+range(our_class$first_name)
+
+# This function, when ran on a character vector, returns the alphabetically first and last string.
+
+```
+
+
+***
+
+**10. The documentation for the *range()* function indicates the first argument, the only required argument, as ellipses. What does this mean and why is that the case for this function?**
+
+```{r}
+
+# The ellipses means accept any number of arguments. 
+
+# Range can take one or more vectors and it combines all arguments into a single set of values and then give the min and max. 
+
+# For this function there are different methods. The ellipses is a pass through. When you give something to range, it's doing triage. Triage meaning that it is deciding where it should go. The range function is not doing the hard work. If it's numerical where are sending it one place versus sending it another place if it's a character. 
+
+# This mean its passing through the data to other functions. 
+
+```
+
+
+***

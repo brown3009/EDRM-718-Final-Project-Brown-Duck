@@ -6,12 +6,16 @@ author: "Adam Brown"
 
 ```{r}
 
+# Running all libraries here for the entire notebook.
+
 library(here)
 library(gt)
 library(readr)
 library(readxl)
 library(tibble)
 library(tidyverse)
+library(dplyr)
+library(tidyr)
 
 
 ```
@@ -20,22 +24,37 @@ library(tidyverse)
 
 ```{r}
 
-# Read the Excel files into R
+# First, I'm reading in the Excel files using read_excel so I can then convert them to CSV files. I could save each file in Excel as a CSV but why not let R do this for me. Then I will save the CSV files in my data folder so that I can import them using read_csv.
+
+# Reading in the Excel files into R.
+
 job_prep_demographics <- read_excel(here("data", "Job Prep Demographics.xlsx"))
 job_prep_gpa_data <- read_excel(here("data", "Job Prep GPA Data.xlsx"))
 job_prep_survey_results <- read_excel(here("data", "Job Prep Survey Results.xlsx"))
 
-# Write the data to CSV files in the 'data' folder
+# Writing the data to CSV files in the 'data' folder.
+
 write_csv(job_prep_demographics, here("data", "Job_Prep_Demographics.csv"))
 write_csv(job_prep_gpa_data, here("data", "Job_Prep_GPA_Data.csv"))
 write_csv(job_prep_survey_results, here("data", "Job_Prep_Survey_Results.csv"))
 
-# Read the CSV files into R using the 'here' package with the correct path
-job_prep_demographics <- read_csv(here("data", "Job_Prep_Demographics.csv"))
-job_prep_gpa_data <- read_csv(here("data", "Job_Prep_GPA_Data.csv"))
-job_prep_survey_results <- read_csv(here("data", "Job_Prep_Survey_Results.csv"))
 
-# View the first few rows of each dataset to confirm they loaded correctly
+
+```
+
+
+
+
+```{r}
+
+# Reading the CSV files into R using read_csv..
+
+job_prep_demographics <- read_csv(here("data", "Job_Prep_Demographics.csv"), col_names = FALSE)
+job_prep_gpa_data <- read_csv(here("data", "Job_Prep_GPA_Data.csv"), col_names = FALSE)
+job_prep_survey_results <- read_csv(here("data", "Job_Prep_Survey_Results.csv"), col_names = FALSE)
+
+# View the first few rows of each dataset to confirm they loaded correctly.
+
 head(job_prep_demographics)
 head(job_prep_gpa_data)
 head(job_prep_survey_results)
@@ -43,53 +62,207 @@ head(job_prep_survey_results)
 ```
 
 
+
 ```{r}
 
-# Function to check for problems with the dataset after reading
-check_problems <- function(df, file_name) {
-  problems <- problems(df)
-  if (nrow(problems) > 0) {
-    print(paste("Problems in", file_name, ":"))
-    print(problems)
-  } else {
-    print(paste("No problems found in", file_name))
-  }
+# Checking the Demo data for any problems that occurred during import.
+
+demo_issues <- problems(job_prep_demographics)
+
+# Viewing the problems.
+
+if (nrow(demo_issues) > 0) {
+  print("Problems were found during import:")
+  print(import_issues)
+} else {
+  print("No problems were found during import.")
 }
 
-# Read the CSV files using 'here' package
-job_prep_demographics <- read_csv(here("data", "Job_Prep_Demographics.csv"))
-job_prep_gpa_data <- read_csv(here("data", "Job_Prep_GPA_Data.csv"))
-job_prep_survey_results <- read_csv(here("data", "Job_Prep_Survey_Results.csv"))
+# Checking the gpa data for any problems that occurred during import.
 
-# Check for problems with each dataset
-check_problems(job_prep_demographics, "Job_Prep_Demographics.csv")
-check_problems(job_prep_gpa_data, "Job_Prep_GPA_Data.csv")
-check_problems(job_prep_survey_results, "Job_Prep_Survey_Results.csv")
+gpa_issues <- problems(job_prep_gpa_data)
 
-# Check for missing values
-check_missing(job_prep_demographics)
-check_missing(job_prep_gpa_data)
-check_missing(job_prep_survey_results)
+# Viewing the problems.
 
-# Check for duplicate rows
-check_duplicates(job_prep_demographics)
-check_duplicates(job_prep_gpa_data)
-check_duplicates(job_prep_survey_results)
+if (nrow(gpa_issues) > 0) {
+  print("Problems were found during import:")
+  print(import_issues)
+} else {
+  print("No problems were found during import.")
+}
 
-# Check for data types
-check_data_types(job_prep_demographics)
-check_data_types(job_prep_gpa_data)
-check_data_types(job_prep_survey_results)
+# Checking the survey data for any problems that occurred during import.
 
-# Summary statistics for numerical columns
-check_summary_stats(job_prep_demographics)
-check_summary_stats(job_prep_gpa_data)
-check_summary_stats(job_prep_survey_results)
+survey_issues <- problems(job_prep_survey_results)
 
-# Check for outliers in numerical columns
-check_outliers(job_prep_demographics)
-check_outliers(job_prep_gpa_data)
-check_outliers(job_prep_survey_results)
+# Viewing the problems, if any.
+
+if (nrow(survey_issues) > 0) {
+  print("Problems were found during import:")
+  print(import_issues)
+} else {
+  print("No problems were found during import.")
+}
+
+```
+
+
+```{r}
+
+
+str(job_prep_demographics)
+str(job_prep_gpa_data)
+str(job_prep_survey_results)
+
+```
+
+File #1
+
+```{r}
+
+# I am now doing several things. First, I have to add a column and put the subject in rows and not simply at the top of each section. Second, I am removing the first six rows as I do not need this data and setting the new row one as the header. Third, I am correcting the header value of Humanities that I created in my first two steps by way of processing and I am setting this column header as Subjects. Next, I am setting the column types and removing any Subjects rows that have Other as this was my term for unneccessary data.
+
+# Add the discipline column to mark each section (e.g., Humanities, Social Sciences)
+job_prep_demographics <- job_prep_demographics %>%
+  mutate(discipline = case_when(
+    row_number() <= 145 ~ "Humanities",  # Adjust row numbers for Humanities
+    row_number() > 150 & row_number() <= 303 ~ "Social Sciences",  # Adjust for Social Sciences
+    row_number() > 308 & row_number() <= 463 ~ "Natural Sciences",  # Adjust for Natural Sciences
+    row_number() > 468 & row_number() <= 617 ~ "Formal Sciences",  # Adjust for Formal Sciences
+    row_number() > 622 ~ "Applied Sciences",  # Adjust for Applied Sciences
+    TRUE ~ "Other"
+  ))
+
+# Remove the first six rows (metadata/incorrect headers)
+job_prep_demographics_clean <- job_prep_demographics %>%
+  slice(-1, -2, -3, -4, -5, -6)  # Remove the first 6 rows with non-data
+
+# Set correct column names, where row 1 should be the header
+colnames(job_prep_demographics_clean) <- job_prep_demographics_clean[1, ]
+job_prep_demographics_clean <- job_prep_demographics_clean[-1, ]  # Remove the first row now that it is the header
+
+# Rename the "Humanities" column to "Subjects"
+job_prep_demographics_clean <- job_prep_demographics_clean %>%
+  rename(Subjects = Humanities)
+
+# Set the correct column types
+job_prep_demographics_clean <- job_prep_demographics_clean %>%
+  mutate(
+    ID = as.integer(ID),
+    `School Code` = as.integer(`School Code`),
+    Age = as.integer(Age),
+    Gender = as.character(Gender),  # Convert gender to character for easier manipulation
+    Subjects = as.character(Subjects)  # Ensure Subjects is a character column
+  )
+
+# Remove rows where the value in the Subjects column is "Other"
+job_prep_demographics_clean <- job_prep_demographics_clean %>%
+  filter(Subjects != "Other")
+
+# Clean column names to make them syntactically valid and consistent
+colnames(job_prep_demographics_clean) <- make.names(colnames(job_prep_demographics_clean))
+
+# View the cleaned data
+head(job_prep_demographics_clean)
+
+```
+
+File #2
+
+```{r}
+
+# Remove the first four rows with non-data and metadata
+job_prep_gpa_data_tidy <- job_prep_gpa_data %>%
+  slice(-1, -2, -3, -4)  # Remove first four rows
+
+# Set the column names using row 1 (now row 5 after removing the first 4 rows)
+colnames(job_prep_gpa_data_tidy) <- job_prep_gpa_data_tidy[1, ]
+job_prep_gpa_data_tidy <- job_prep_gpa_data_tidy[-1, ]  # Remove the first row which is now the header
+
+# Rename columns and calculate average GPA
+job_prep_gpa_data_tidy <- job_prep_gpa_data_tidy %>%
+  rename(
+    first_semester_gpa = "S1 GPA",
+    second_semester_gpa = "S2 GPA",
+    credits_first_semester = "S1 Credits",
+    credits_second_semester = "S2 Credits"
+  ) 
+
+# Set the column types and format GPA columns
+job_prep_gpa_data_tidy <- job_prep_gpa_data_tidy %>%
+  # Convert columns to the correct types
+  mutate(
+    ID = as.integer(ID),
+    `School Code` = as.integer(`School Code`),
+    Age = as.integer(Age),
+    Gender = as.character(Gender),
+    credits_first_semester = as.numeric(credits_first_semester),
+    first_semester_gpa = as.numeric(first_semester_gpa),
+    credits_second_semester = as.numeric(credits_second_semester),
+    second_semester_gpa = as.numeric(second_semester_gpa)
+  ) %>%
+  # Format GPA columns to 2 decimal places (no rounding)
+  mutate(
+    first_semester_gpa = format(first_semester_gpa, digits = 3, nsmall = 2),
+    second_semester_gpa = format(second_semester_gpa, digits = 3, nsmall = 2)
+)
+    
+  #mutate(
+   # avg_gpa = (first_semester_gpa * credits_first_semester + second_semester_gpa * credits_second_semester) / 
+    #         (credits_first_semester + credits_second_semester)
+  #)) %>%
+  #select(ID, first_semester_gpa, second_semester_gpa, avg_gpa, credits_first_semester, credits_second_semester)
+
+# View the tidied data
+head(job_prep_gpa_data_tidy)
+
+
+```
+
+
+
+File #3
+
+```{r}
+
+# Slice off the first three rows
+job_prep_results_clean <- job_prep_survey_results %>%
+  slice(-1, -2, -3)  # Remove first 3 rows
+
+# Set the correct column names (the 4th row, now the first row)
+colnames(job_prep_results_clean) <- job_prep_results_clean[1, ]
+job_prep_results_clean <- job_prep_results_clean[-1, ]  # Remove the first row now that it is the header
+
+# Rename columns to replace spaces with underscores (for Item 1, Item 2, ...)
+colnames(job_prep_results_clean)[2:15] <- gsub(" ", "_", colnames(job_prep_results_clean)[2:15])
+
+# Convert all columns to integer type
+job_prep_results_clean <- job_prep_results_clean %>%
+  mutate(across(everything(), as.integer))
+
+# View the cleaned dataset
+head(job_prep_results_clean)
+
+```
+
+File #3b
+
+```{r}
+
+# Assuming reverse scoring of specific items (e.g., Item_4, Item_9, Item_12, Item_13)
+job_prep_survey_results_tidy <- job_prep_results_clean %>%
+  mutate(
+    # Reverse-score specific items (e.g., Item_4, Item_9, Item_12, Item_13)
+    Item_4 = 7 - Item_4, 
+    Item_9 = 7 - Item_9,
+    Item_12 = 7 - Item_12,
+    Item_13 = 7 - Item_13,
+    optimism_score = rowSums(select(., starts_with("Item_")), na.rm = TRUE)  # Sum across all Likert items
+  ) %>%
+  select(ID, optimism_score, starts_with("Item_"))  # Keep relevant columns
+
+# Check the tidied data
+head(job_prep_survey_results_tidy)
 
 ```
 

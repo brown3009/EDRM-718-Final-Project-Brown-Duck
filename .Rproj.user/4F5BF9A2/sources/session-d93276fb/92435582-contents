@@ -1,0 +1,256 @@
+---
+title: "EDRM 718 Exercise Set J"
+author: "Adam Brown"
+date: "`r Sys.Date()`"
+format: html
+---
+
+*Put your name as the author of this notebook in the YAML, then complete each of the items below. Make sure that your notebook is neat and organized and that all your code chunks run without error, even after clearing the environment. (Six points per item)*
+
+***
+
+*Use **ggplot2()** for all items in this exercise set. Use the **hsb2** data for item 1 through item 6.*
+
+```{r}
+
+library(here)
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+library(dplyr)
+
+```
+
+
+
+***
+
+**1. Create a histogram of math scores.**
+
+```{r}
+
+student_scores <- read.csv(here("Data", "hsb2.csv"), header = TRUE, sep = ",")
+
+```
+
+
+
+```{r}
+
+ggplot(student_scores, aes(x = math)) +
+  geom_histogram(binwidth = 5, fill = "skyblue", color = "white") +
+  labs(
+    title = "Distribution of Math Scores",
+    x = "Math Score",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+```
+
+
+***
+
+**2. Create a scatterplot to illustrate the relationship of math and science scores. Put math on the horizontal axis.**
+
+```{r}
+
+ggplot(student_scores, aes(x = math, y = science)) +
+  geom_point(color = "darkgreen", shape = 19) +
+  labs(
+    title = "Math vs. Science Scores",
+    x = "Math Score",
+    y = "Science Score"
+  ) +
+  theme_minimal()
+
+
+```
+
+
+***
+
+**3. Create a scatterplot to illustrate the relationship of math and science scores. Put math on the horizontal axis. Use different colors to indicate the SES for each student in the plot. Put a linear regression line on your plot.**
+
+```{r}
+
+ggplot(student_scores, aes(x = math, y = science, color = as.factor(ses))) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "black") +
+  labs(
+    title = "Relationship Between Math and Science Scores by SES",
+    x = "Math Score",
+    y = "Science Score",
+    color = "SES"
+  ) +
+  theme_minimal()
+
+
+```
+
+
+***
+
+**4. Create two faceted scatterplots to illustrate the relationship of math and science scores: one for private school students and one for public school students. Put math on the horizontal axis of each plot. Use different colors to indicate the SES for each student in the plots. Put a linear regression line on your plots.**
+
+```{r}
+
+# Converting school type and SES to factors.
+
+student_scores$schtyp <- factor(student_scores$schtyp, levels = c(1, 2), labels = c("Public", "Private"))
+student_scores$ses <- as.factor(student_scores$ses)
+
+# Creating scatterplots.
+
+ggplot(student_scores, aes(x = math, y = science, color = ses)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~ schtyp) +
+  labs(
+    title = "Math vs. Science Scores by School Type and SES",
+    x = "Math Score",
+    y = "Science Score",
+    color = "SES"
+  ) +
+  theme_minimal()
+
+```
+
+
+***
+
+**5. Create side-by-side boxplots to illustrate the differences in math scores of students from different SES groups. Include points for every student in your plot. Also plot the mean for each group.**
+
+```{r}
+
+# Using ggplot to create boxplots.
+
+ggplot(student_scores, aes(x = ses, y = math)) + 
+  geom_boxplot(aes(fill = ses), outlier.colour = "red", outlier.shape = 16, outlier.size = 3) +  
+  geom_jitter(aes(color = ses), width = 0.2, alpha = 0.6) +  # Points for each student
+  stat_summary(aes(group = ses), fun = mean, geom = "point", shape = 18, size = 4, color = "black") +  # Mean points
+  labs(
+    title = "Math Scores by SES Group",
+    x = "SES Group",
+    y = "Math Score",
+    fill = "SES",
+    color = "SES"
+  ) +
+  theme_minimal()
+
+```
+
+
+***
+
+**6. Create stacked bar plots to illustrate how SES groupings is related to the private-public school distinction. Plot proportions on the vertical axis.**
+
+```{r}
+
+# Creating stacked bar plot with proportions.
+
+ggplot(student_scores, aes(x = schtyp, fill = ses)) +
+  geom_bar(position = "fill") +  # "fill" makes it proportional
+  scale_y_continuous(labels = scales::percent_format()) +  # Convert y-axis to percentages
+  labs(
+    title = "Relationship Between SES and School Type",
+    x = "School Type",
+    y = "Proportion",
+    fill = "SES"
+  ) +
+  theme_minimal()
+
+```
+
+
+***
+
+*Use the **mental health study** data for item 7.*
+
+***
+
+**7. Use the mental health study data to graphically explore the relationship of life events and SES on mental health impairment. Your graph should illustrate whether SES moderates the influence of life events on mental health.**
+
+```{r}
+
+# Using read_excel since file was Excel.
+
+mental_health_study <- read_excel(here("data", "Mental Health Study Data.xlsx"))
+
+```
+
+
+```{r}
+
+
+# Converting SES to numeric.
+
+mental_health_study$SES <- as.numeric(as.character(mental_health_study$SES))
+
+# Recoding SES into a new categorical variable instead of overwriting.
+
+mental_health_study$SES_group <- cut(
+  mental_health_study$SES,
+  breaks = 3,
+  labels = c("Low", "Medium", "High")
+)
+
+# Creating the plot using the new SES_group variable.
+
+ggplot(mental_health_study, aes(x = LifeEvts, y = MentImp, color = SES_group)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Interaction of Life Events and SES on Mental Health Impairment",
+    x = "Life Events",
+    y = "Mental Health Impairment",
+    color = "SES"
+  ) +
+  theme_minimal()
+
+```
+
+
+***
+
+*Use the **notes study** data for item 8.*
+
+***
+
+**8. Use the notes study data to graphically explore the relationship of method of note taking to later recall. Your graph should illustrate whether the type of lecture moderates the effect of note taking method on recall.**
+
+```{r}
+
+# Using read_excel since file was Excel.
+
+notes_study <- read_excel(here("data", "Notes Data.xlsx"))
+
+```
+
+
+```{r}
+
+# Converting lecture and notes to factors.
+
+notes_study$lecture <- factor(notes_study$lecture, labels = c("Lecture 1", "Lecture 2"))
+notes_study$notes <- factor(notes_study$notes, labels = c("Laptop", "Handwritten", "No Notes"))
+
+# Create interaction plot.
+
+ggplot(notes_study, aes(x = notes, y = score, fill = notes)) +
+  geom_boxplot(alpha = 0.7) +
+  stat_summary(fun = mean, geom = "point", shape = 20, size = 3, color = "black", position = position_dodge(width = 0.75)) +
+  facet_wrap(~ lecture) +
+  labs(
+    title = "Effect of Note-Taking Method on Recall by Lecture Type",
+    x = "Note-Taking Method",
+    y = "Recall Score",
+    fill = "Notes"
+  ) +
+  theme_minimal()
+
+
+```
+
+
+***
