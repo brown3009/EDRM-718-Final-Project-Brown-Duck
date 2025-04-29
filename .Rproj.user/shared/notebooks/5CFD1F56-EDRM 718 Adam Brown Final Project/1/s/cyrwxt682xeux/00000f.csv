@@ -1,7 +1,0 @@
-"0",""
-"0","# Remove rows with any NA values"
-"0","job_prep_combined_clean <- job_prep_combined %>%"
-"0","  drop_na()"
-"0",""
-"0","# View the cleaned data"
-"0","head(job_prep_combined_clean)"

@@ -16,6 +16,7 @@ library(tibble)
 library(tidyverse)
 library(dplyr)
 library(tidyr)
+library(ggplot2)
 
 
 ```
@@ -328,25 +329,137 @@ head(job_prep_combined)
 
 ```{r}
 
-# Remove rows with any NA values
+# Here I am taking my clean joined table and removing the rows that contain NA for survey responses. 
+
+# Remove rows with any NA values.
+
 job_prep_combined_clean <- job_prep_combined %>%
   drop_na()
 
-# View the cleaned data
+# Convert columns to the correct types after dropping NA values
+job_prep_combined_clean <- job_prep_combined_clean %>%
+  mutate(
+    # Convert 'Item_1' through 'Item_14' to integers
+    across(starts_with("Item_"), as.integer),
+    
+    # Convert 'optimism_score' to integer
+    optimism_score = as.integer(optimism_score),
+    
+    # Convert GPA and credits columns to numeric
+    second_semester_gpa = as.numeric(second_semester_gpa),
+    first_semester_gpa = as.numeric(first_semester_gpa),
+    credits_first_semester = as.numeric(credits_first_semester),
+    credits_second_semester = as.numeric(credits_second_semester)
+  )
+
+# View the cleaned data with the updated column types
+head(job_prep_combined_clean)
+
+# View the cleaned data with Item_1 through Item_14 as integers
 head(job_prep_combined_clean)
 
 ```
 
 
 
+```{r}
+
+# Plot the first semester GPA against the second semester GPA
+ggplot(job_prep_combined_clean, aes(x = first_semester_gpa, y = second_semester_gpa)) +
+  geom_point() +  # Scatter plot of the data
+  geom_smooth(method = "lm", col = "red") +  # Add a linear regression line
+  labs(title = "First Semester GPA vs Second Semester GPA",
+       x = "First Semester GPA",
+       y = "Second Semester GPA")
+
+```
 
 
 
+```{r}
+
+# Fit a linear model to predict second semester GPA from first semester GPA
+model <- lm(second_semester_gpa ~ first_semester_gpa, data = job_prep_combined_clean)
+
+# Calculate residuals
+job_prep_combined_clean$residuals <- residuals(model)
+
+# Plot the residuals
+ggplot(job_prep_combined_clean, aes(x = first_semester_gpa, y = residuals)) +
+  geom_point() +
+  labs(title = "Residuals from Predicted Second Semester GPA",
+       x = "First Semester GPA",
+       y = "Residuals")
+
+```
 
 
 
+```{r}
+
+# Calculate the 90th percentile of the absolute residuals
+residual_threshold <- quantile(abs(job_prep_combined_clean$residuals), 0.9)
+
+# Exclude students whose absolute residuals are above the 90th percentile
+job_prep_combined_clean_filtered <- job_prep_combined_clean %>%
+  filter(abs(residuals) <= residual_threshold)
+
+# Check the number of students excluded
+nrow(job_prep_combined_clean) - nrow(job_prep_combined_clean_filtered)
+
+```
+
+```{r}
+
+# Highlight students with the largest residuals in the scatter plot
+ggplot(job_prep_combined_clean, aes(x = first_semester_gpa, y = second_semester_gpa)) +
+  geom_point(aes(color = abs(residuals) > residual_threshold)) +  # Color points based on large residuals
+  geom_smooth(method = "lm", col = "red") +
+  labs(title = "First Semester GPA vs Second Semester GPA with Large Residuals Highlighted",
+       x = "First Semester GPA",
+       y = "Second Semester GPA") +
+  scale_color_manual(values = c("black", "red"), labels = c("Normal", "Large Residuals"))
+
+
+```
+
+```{r}
+
+# Ensure columns are numeric before calculating the weighted GPA
+job_prep_combined_clean_filtered <- job_prep_combined_clean_filtered %>%
+  mutate(
+    first_semester_gpa = as.numeric(first_semester_gpa),
+    credits_first_semester = as.numeric(credits_first_semester),
+    second_semester_gpa = as.numeric(second_semester_gpa),
+    credits_second_semester = as.numeric(credits_second_semester)
+  )
+
+# Calculate the weighted average GPA
+job_prep_combined_clean_filtered <- job_prep_combined_clean_filtered %>%
+  mutate(
+    weighted_avg_gpa = (first_semester_gpa * credits_first_semester + second_semester_gpa * credits_second_semester) /
+                       (credits_first_semester + credits_second_semester)
+  )
+
+# View the updated data with the weighted average GPA
+head(job_prep_combined_clean_filtered)
+
+```
 
 
 
+```{r}
+
+# Calculate weighted average GPA based on the number of credits taken in each semester
+job_prep_combined_clean_filtered <- job_prep_combined_clean_filtered %>%
+  mutate(
+    weighted_avg_gpa = (first_semester_gpa * credits_first_semester + second_semester_gpa * credits_second_semester) /
+                       (credits_first_semester + credits_second_semester)
+  )
+
+# View the updated data with the weighted average GPA
+head(job_prep_combined_clean_filtered)
+
+```
 
 

@@ -1,4 +1,6 @@
 "0",""
+"0","# Running all libraries here for the entire notebook."
+"0",""
 "0","library(here)"
 "0","library(gt)"
 "0","library(readr)"
@@ -7,5 +9,6 @@
 "0","library(tidyverse)"
 "0","library(dplyr)"
 "0","library(tidyr)"
+"0","library(ggplot2)"
 "0",""
 "0",""
