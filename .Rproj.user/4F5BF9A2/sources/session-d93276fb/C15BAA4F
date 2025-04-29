@@ -3,9 +3,9 @@
     "path": "~/R Projects/EDRM 718 Final Project Brown Duck/EDRM 718 Adam Brown Final Project.Rmd",
     "project_path": "EDRM 718 Adam Brown Final Project.Rmd",
     "type": "r_markdown",
-    "hash": "0",
+    "hash": "2717675430",
     "contents": "",
-    "dirty": true,
+    "dirty": false,
     "created": 1745866896613.0,
     "source_on_save": false,
     "relative_order": 1,
@@ -14,15 +14,15 @@
         "chunk_output_type": "inline",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "122,524",
-        "scrollLine": "121"
+        "cursorPosition": "321,23",
+        "scrollLine": "293"
     },
     "folds": "",
-    "lastKnownWriteTime": 1745882946,
+    "lastKnownWriteTime": 1745884674,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1745882950218,
+    "last_content_update": 1745884674245,
     "read_only": false,
     "read_only_alternatives": []
 }
