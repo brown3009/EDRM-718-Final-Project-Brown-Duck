@@ -326,6 +326,16 @@ head(job_prep_combined)
 ```
 
 
+```{r}
+
+# Remove rows with any NA values
+job_prep_combined_clean <- job_prep_combined %>%
+  drop_na()
+
+# View the cleaned data
+head(job_prep_combined_clean)
+
+```
 
 
 
