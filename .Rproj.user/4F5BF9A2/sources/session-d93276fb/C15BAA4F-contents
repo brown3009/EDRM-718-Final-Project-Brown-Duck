@@ -463,3 +463,58 @@ head(job_prep_combined_clean_filtered)
 ```
 
 
+```{r}
+
+# Load the function from the external R script in the "functions" folder
+source("functions/likert_functions.R")
+
+# Now you can use the function as needed
+job_prep_combined_clean_filtered <- calculate_likert_score(
+  job_prep_combined_clean_filtered,   # The data
+  scale = 6,                          # The scale used for the items (e.g., 6-point scale)
+  reverse_items = c(4, 9, 12, 13)         # Items to reverse score
+)
+
+# View the data with the total score
+head(job_prep_combined_clean_filtered)
+
+```
+
+
+
+```{r}
+
+# Source the function from the 'functions' folder
+source("functions/find_largest_residuals.R")
+
+# Example usage of the function
+result <- find_largest_residuals(
+  job_prep_combined_clean_filtered,     # The data frame
+  response_var = "total_score",          # The response variable
+  explanatory_var = "first_semester_gpa", # The explanatory variable (e.g., GPA)
+  p = 10                                 # Top 10 largest residuals
+)
+
+# Add the result as a new column in the data frame and rename the table
+job_prep_combined_clean_filtered_largest <- job_prep_combined_clean_filtered %>%
+  mutate(large_residuals = result)
+
+# View the data with the new column indicating large residuals
+head(job_prep_combined_clean_filtered_largest)
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
