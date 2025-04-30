@@ -2,11 +2,12 @@
 title: "EDRM 718 Adam Brown Final Project"
 author: "Adam Brown"
 date: "`r Sys.Date()`"
-format: pdf
+format: html
 editor: visual
 ---
 
 ```{r}
+#| include: false
 
 library(here)
 library(gt)
@@ -21,6 +22,7 @@ library(ggplot2)
 ```
 
 ```{r}
+#| include: false
 
 
 # First, I'm reading in the Excel files using read_excel so I can then convert them to CSV files. I could save each file in Excel as a CSV but why not let R do this for me. Then I will save the CSV files in my data folder so that I can import them using read_csv.
@@ -41,6 +43,7 @@ write_csv(job_prep_survey_results, here("data", "Job_Prep_Survey_Results.csv"))
 ```
 
 ```{r}
+#| include: false
 
 
 # Reading the CSV files into R using read_csv..
@@ -59,6 +62,7 @@ head(job_prep_survey_results)
 ```
 
 ```{r}
+#| include: false
 # Checking the Demo data for any problems that occurred during import.
 
 demo_issues <- problems(job_prep_demographics)
@@ -102,13 +106,16 @@ if (nrow(survey_issues) > 0) {
 
 ## Description
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+This research report explores the relationships between optimisim scores (from the survey data and measures their outlook on employment and career readiness), reported GPA's, and the college students academic disciplines. More specifically, this report seeks to answer these three questions, Is senior-year grade point average (GPA) related to the degree of optimism about future employment? Is the relationship of GPA and optimism consistent or different for different categories of disciplines? Is the level of optimism different for different categories of disciplines? The three datasets include survey results from over 700 college seniors. graduating this spring, representing 23 major universities in the United States. These datasets include demographic data, academic performance data, and data from a short (14-item) Likert-type survey which sought to determine their optimism regarding their readiness and likelihood of obtaining a job after graduation
 
-**Source of Data:** Testing Company (Dr. Michael Seaman), hsb2-current CSV file.
+**Source of Data:** Real World Solutions, Job Prep Demographics, Job Prep GPA, and Job Prep Survey Results. Sourced 24 April 2025.
 
 ## Analysis
 
+I begin my analysis reading in the three separate data files, tidying the data that is missing or has problems, and then joining the files together using my unique key, which in this case is Student ID number. Now that I have completed the data processing and cleaning, I start by examining the reported GPA's for the students from the first and second semester. We need to verify consistency of GPA's before we can create a weighted GPA average.
+
 ```{r}
+#| include: false
 
 # file 1
 
@@ -159,6 +166,7 @@ head(job_prep_demographics_clean)
 ```
 
 ```{r}
+#| include: false
 
 # file 2
 
@@ -211,6 +219,8 @@ head(job_prep_gpa_data_tidy)
 ```
 
 ```{r}
+#| warning: false
+#| include: false
 
 # file 3
 
@@ -235,40 +245,23 @@ head(job_prep_results_clean)
 ```
 
 ```{r}
+#| warning: false
+#| include: false
 
-# file 3b
-
-# Assuming reverse scoring of specific items (e.g., Item_4, Item_9, Item_12, Item_13)
-job_prep_survey_results_tidy <- job_prep_results_clean %>%
-  mutate(
-    # Reverse-score specific items (e.g., Item_4, Item_9, Item_12, Item_13)
-    Item_4 = 7 - Item_4, 
-    Item_9 = 7 - Item_9,
-    Item_12 = 7 - Item_12,
-    Item_13 = 7 - Item_13,
-    optimism_score = rowSums(select(., starts_with("Item_")), na.rm = TRUE)  # Sum across all Likert items
-  ) %>%
-  select(ID, optimism_score, starts_with("Item_"))  # Keep relevant columns
-
-# Check the tidied data
-head(job_prep_survey_results_tidy)
-```
-
-```{r}
 # Step 1: Check the column names in each dataset to ensure 'ID' is consistent
 colnames(job_prep_demographics_clean)
 colnames(job_prep_gpa_data_tidy)
-colnames(job_prep_survey_results_tidy)
+colnames(job_prep_results_clean)
 
 # Step 2: Check the first few rows of each dataset to make sure 'ID' is present and formatted correctly
 head(job_prep_demographics_clean)
 head(job_prep_gpa_data_tidy)
-head(job_prep_survey_results_tidy)
+head(job_prep_results_clean)
 
 # Step 3: Remove any leading or trailing spaces in column names (if they exist)
 colnames(job_prep_demographics_clean) <- trimws(colnames(job_prep_demographics_clean))
 colnames(job_prep_gpa_data_tidy) <- trimws(colnames(job_prep_gpa_data_tidy))
-colnames(job_prep_survey_results_tidy) <- trimws(colnames(job_prep_survey_results_tidy))
+colnames(job_prep_results_clean) <- trimws(colnames(job_prep_results_clean))
 
 # Step 4: Ensure 'ID' is an integer in all datasets
 job_prep_demographics_clean <- job_prep_demographics_clean %>%
@@ -277,7 +270,7 @@ job_prep_demographics_clean <- job_prep_demographics_clean %>%
 job_prep_gpa_data_tidy <- job_prep_gpa_data_tidy %>%
   mutate(ID = as.integer(ID))
 
-job_prep_survey_results_tidy <- job_prep_survey_results_tidy %>%
+job_prep_results_clean <- job_prep_results_clean %>%
   mutate(ID = as.integer(ID))  # Ensure ID is integer
 
 # Step 5: Perform the left joins again after ensuring column consistency
@@ -288,8 +281,8 @@ job_prep_combined <- job_prep_demographics_clean %>%
     by = "ID"
   ) %>%
   left_join(
-    job_prep_survey_results_tidy %>%
-      select(ID, optimism_score, Item_1, Item_2, Item_3, Item_4, Item_5, Item_6, Item_7, Item_8, Item_9, Item_10, Item_11, Item_12, Item_13, Item_14),  # Select specific columns from Table 3
+    job_prep_results_clean %>%
+      select(ID, Item_1, Item_2, Item_3, Item_4, Item_5, Item_6, Item_7, Item_8, Item_9, Item_10, Item_11, Item_12, Item_13, Item_14),  # Select specific columns from Table 3
     by = "ID"
   )
 
@@ -299,6 +292,8 @@ head(job_prep_combined)
 ```
 
 ```{r}
+#| warning: false
+#| include: false
 # Here I am taking my clean joined table and removing the rows that contain NA for survey responses. 
 
 # Remove rows with any NA values.
@@ -312,8 +307,6 @@ job_prep_combined_clean <- job_prep_combined_clean %>%
     # Convert 'Item_1' through 'Item_14' to integers
     across(starts_with("Item_"), as.integer),
     
-    # Convert 'optimism_score' to integer
-    optimism_score = as.integer(optimism_score),
     
     # Convert GPA and credits columns to numeric
     second_semester_gpa = as.numeric(second_semester_gpa),
@@ -330,9 +323,13 @@ head(job_prep_combined_clean)
 
 ```
 
+In Figure 1, I created a scatterplot to verify consistency by observing if there a strong linear relationship exists between first and second semester GPA's. In Figure 1, we observe that as the GPA for the first semester increases, so does the GPA for the second semester. This tell us that a strong linear relationship does exist. Since a strong linear relationship exists this GPA's are comparable which means we can create our next scatterplot which will helps us to know if we can predict second semester GPA from first semester GPA.
+
 #### Figure 1. Reading Scores by Gender.
 
 ```{r}
+#| echo: false
+#| warning: false
 
 # Plot the first semester GPA against the second semester GPA
 ggplot(job_prep_combined_clean, aes(x = first_semester_gpa, y = second_semester_gpa)) +
@@ -345,7 +342,13 @@ ggplot(job_prep_combined_clean, aes(x = first_semester_gpa, y = second_semester_
 
 ```
 
+In Figure 2, I created a scatterplot to identify if patterns exist or not. We do not observe any shapes or patters in the data, which is good because this means the residuals are randomly distributed. This scatterplot helps me to know that my linear model is a good fit and there shouldn't be significant bias in predicting second semester GPA from first semester. This gives me confidence to create a weighted GPA but first I need to identify and exclude those students who are among those with the ten percent largest residuals. I run this analysis next in Figure 3.
+
+#### Figure 2. Reading Scores by Gender.
+
 ```{r}
+#| echo: false
+#| warning: false
 
 # Fit a linear model to predict second semester GPA from first semester GPA
 model <- lm(second_semester_gpa ~ first_semester_gpa, data = job_prep_combined_clean)
@@ -364,6 +367,8 @@ ggplot(job_prep_combined_clean, aes(x = first_semester_gpa, y = residuals)) +
 ```
 
 ```{r}
+#| warning: false
+#| include: false
 
 # Calculate the 90th percentile of the absolute residuals
 residual_threshold <- quantile(abs(job_prep_combined_clean$residuals), 0.9)
@@ -377,7 +382,13 @@ nrow(job_prep_combined_clean) - nrow(job_prep_combined_clean_filtered)
 
 ```
 
+In Figure 3, we can observe the students who are among those with the ten percent largest residuals as they are noted in red. We note from our data that there are 54 students who fall into this category. I will remove those students from the data prior to calculating weighted GPA and we will continue to move through the analysis.
+
+#### Figure 3. Reading Scores by Gender.
+
 ```{r}
+#| echo: false
+#| warning: false
 
 # Highlight students with the largest residuals in the scatter plot
 ggplot(job_prep_combined_clean, aes(x = first_semester_gpa, y = second_semester_gpa)) +
@@ -464,6 +475,69 @@ job_prep_combined_clean_filtered_largest <- job_prep_combined_clean_filtered %>%
 
 # View the data with the new column indicating large residuals
 head(job_prep_combined_clean_filtered_largest)
+
+```
+
+#### Figure 4. Reading Scores by Gender.
+
+```{r}
+
+ggplot(job_prep_combined_clean_filtered_largest, aes(x = weighted_avg_gpa, y = optimism_score)) +
+  geom_point() +  # Scatter plot of the data points
+  geom_smooth(method = "lm", col = "red") +  # Add a linear regression line
+  labs(title = "Senior-Year GPA vs Optimism Score", 
+       x = "Weighted Average GPA", y = "Optimism Score")
+
+
+
+```
+
+#### Table 1. Reading Scores by Gender.
+
+```{r}
+
+
+# Calculate the correlation between weighted_avg_gpa and optimism_score
+correlation <- cor(job_prep_combined_clean_filtered_largest$weighted_avg_gpa, 
+                   job_prep_combined_clean_filtered_largest$optimism_score, 
+                   use = "complete.obs")
+
+# Round the correlation coefficient to two decimal places
+correlation <- round(correlation, 2)
+
+# Create a tibble to display the correlation result
+library(tibble)
+
+correlation_tibble <- tibble(
+  Variable_1 = "weighted_avg_gpa",
+  Variable_2 = "optimism_score",
+  Correlation_Coefficient = correlation
+)
+
+# View the correlation tibble
+print(correlation_tibble)
+
+```
+
+```{r}
+
+# Run a linear regression model
+model <- lm(optimism_score ~ weighted_avg_gpa, data = job_prep_combined_clean_filtered_largest)
+
+# Summary of the regression model
+model_summary <- summary(model)
+
+# Extract coefficients, p-values, and other relevant results
+regression_results <- tibble(
+  Term = rownames(model_summary$coefficients),
+  Estimate = round(model_summary$coefficients[, 1], 2),
+  Std_Error = round(model_summary$coefficients[, 2], 2),
+  t_Value = round(model_summary$coefficients[, 3], 2),
+  p_Value = round(model_summary$coefficients[, 4], 2)
+)
+
+# View the regression results tibble
+print(regression_results)
 
 ```
 

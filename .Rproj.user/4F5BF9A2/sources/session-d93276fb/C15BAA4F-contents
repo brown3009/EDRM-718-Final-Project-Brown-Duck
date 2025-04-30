@@ -284,17 +284,17 @@ colnames(job_prep_survey_results_tidy)
 # Step 1: Check the column names in each dataset to ensure 'ID' is consistent
 colnames(job_prep_demographics_clean)
 colnames(job_prep_gpa_data_tidy)
-colnames(job_prep_survey_results_tidy)
+colnames(job_prep_results_clean)
 
 # Step 2: Check the first few rows of each dataset to make sure 'ID' is present and formatted correctly
 head(job_prep_demographics_clean)
 head(job_prep_gpa_data_tidy)
-head(job_prep_survey_results_tidy)
+head(job_prep_results_clean)
 
 # Step 3: Remove any leading or trailing spaces in column names (if they exist)
 colnames(job_prep_demographics_clean) <- trimws(colnames(job_prep_demographics_clean))
 colnames(job_prep_gpa_data_tidy) <- trimws(colnames(job_prep_gpa_data_tidy))
-colnames(job_prep_survey_results_tidy) <- trimws(colnames(job_prep_survey_results_tidy))
+colnames(job_prep_results_clean) <- trimws(colnames(job_prep_results_clean))
 
 # Step 4: Ensure 'ID' is an integer in all datasets
 job_prep_demographics_clean <- job_prep_demographics_clean %>%
@@ -303,7 +303,7 @@ job_prep_demographics_clean <- job_prep_demographics_clean %>%
 job_prep_gpa_data_tidy <- job_prep_gpa_data_tidy %>%
   mutate(ID = as.integer(ID))
 
-job_prep_survey_results_tidy <- job_prep_survey_results_tidy %>%
+job_prep_results_clean <- job_prep_results_clean %>%
   mutate(ID = as.integer(ID))  # Ensure ID is integer
 
 # Step 5: Perform the left joins again after ensuring column consistency
@@ -314,14 +314,13 @@ job_prep_combined <- job_prep_demographics_clean %>%
     by = "ID"
   ) %>%
   left_join(
-    job_prep_survey_results_tidy %>%
-      select(ID, optimism_score, Item_1, Item_2, Item_3, Item_4, Item_5, Item_6, Item_7, Item_8, Item_9, Item_10, Item_11, Item_12, Item_13, Item_14),  # Select specific columns from Table 3
+    job_prep_results_clean %>%
+      select(ID, Item_1, Item_2, Item_3, Item_4, Item_5, Item_6, Item_7, Item_8, Item_9, Item_10, Item_11, Item_12, Item_13, Item_14),  # Select specific columns from Table 3
     by = "ID"
   )
 
 # Step 6: View the combined data
 head(job_prep_combined)
-
 
 
 ```

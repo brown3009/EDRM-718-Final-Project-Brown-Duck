@@ -42,7 +42,7 @@ hsb2 <- hsb2 %>%
 
 ## Description
 
-This report explores gender differences in reading scores in the HSB2 dataset. We examine whether these differences vary by school type and whether socioeconomic status moderates this relationship. More specifically, this report seeks to answer these three questions, Are there gender differences in the mean reading score? Are gender differences related to the type of school (public or private)? Does socioeconomic status appear to moderate gender differences within school types? The dataset includes academic performance measures and demographic variables for high school students from both public and private institutions.
+This report explores gender differences in reading scores in the HSB2 dataset. We examine whether these differences vary by school type and whether socioeconomic status moderates this relationship. More specifically, this report seeks to answer these three questions, Are there gender differences in the mean reading score? Are gender differences related to the type of school (public or private)? Does socioeconomic status appear to moderate gender differences within school types? These datasets includes academic performance measures and demographic variables for high school students from both public and private institutions.
 
 **Source of Data:** Testing Company (Dr. Michael Seaman), hsb2-current CSV file.
 
