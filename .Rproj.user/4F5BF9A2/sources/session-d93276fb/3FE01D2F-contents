@@ -1,0 +1,365 @@
+---
+title: "A Study of Gender in Education"
+author: "Adam Brown"
+date: "`r Sys.Date()`"
+format: html
+editor: visual
+---
+
+```{r}
+#| include: false
+
+library(tidyverse)
+library(here)
+library(gt)
+library(janitor)
+library(tibble)
+library(broom)
+
+```
+
+```{r}
+#| include: false
+
+# Reading in the data.
+
+hsb2 <- read_csv(here("data", "hsb2.csv"))
+
+# Cleaning column names.
+
+hsb2 <- clean_names(hsb2)
+
+# Making sure categorical variables are factors.
+
+hsb2 <- hsb2 %>%
+  mutate(
+    female = factor(female, labels = c("Male", "Female")),
+    schtyp = factor(schtyp, labels = c("Public", "Private")),
+    ses = factor(ses, labels = c("Low", "Middle", "High"))
+  )
+
+```
+
+## Description
+
+This report explores gender differences in reading scores in the HSB2 dataset. We examine whether these differences vary by school type and whether socioeconomic status moderates this relationship. More specifically, this report seeks to answer these three questions, Are there gender differences in the mean reading score? Are gender differences related to the type of school (public or private)? Does socioeconomic status appear to moderate gender differences within school types? The dataset includes academic performance measures and demographic variables for high school students from both public and private institutions.
+
+**Source of Data:** Testing Company (Dr. Michael Seaman), hsb2-current CSV file.
+
+## Analysis
+
+This analysis will look at reading test scores for the entire population and will analyze the observed differences between public or private school students, male and female students, and their associated social economics status.
+
+In Figure 1 we can observe the reading scores for males appears to be higher than that of females but only slightly. We also observe that they distribution of scores for males has more variation. We will continue to analyze in Table 1. In Table 1 we see that the n, or number of test scores for females is higher, and that males do have a slightly higher variation in test scores with a SD of 10.5 and females being about 10. Based on the means in Table 1 we do not observe a significant difference in scores based on gender.
+
+#### Figure 1. Reading Scores by Gender.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Calculating means by gender.
+
+mean_data_gender <- hsb2 %>%
+  group_by(female) %>%
+  summarise(mean_read = mean(read, na.rm = TRUE), .groups = "drop")
+
+# Plot with boxplots + red interaction line.
+
+ggplot(hsb2, aes(x = female, y = read, fill = female)) +
+  geom_boxplot() +
+  geom_point(data = mean_data_gender, 
+             aes(x = female, y = mean_read, group = 1),  
+             color = "red",
+             size = 3) +
+  geom_line(data = mean_data_gender,
+            aes(x = female, y = mean_read, group = 1),  
+            color = "red",
+            size = 1.2) +
+  labs(
+    title = "Reading Scores by Gender (with Red Line Connecting Means)",
+    x = "Gender",
+    y = "Reading Score"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+```
+
+#### Table 1. Summary Statistics for Reading Scores by Gender.
+
+```{r}
+#| echo: false
+
+hsb2 %>%
+  group_by(female) %>%
+  summarize(
+    Mean = round(mean(read), 2),
+    Median = median(read),
+    SD = round(sd(read), 2),
+    n = n()
+  ) %>%
+  gt()
+
+```
+
+To add clarity, we run a T-test on reading scores by gender. The results of this test are observed in Table 2. With this P-value, we learn that there shouldn't be observed statistically significant difference between reading scores and gender. More importantly, we did observe a slight advantage in means toward males in Figure 1, however, there is enough instability of the statics based upon the error variance that we can not infer that difference to the population at this stage.
+
+#### Table 2. T-test of Reading Scores by Gender.
+
+```{r}
+#| echo: false
+
+# Run the t-test.
+
+t_test_result <- t.test(read ~ female, data = hsb2)
+
+# Extract and format results into a tibble.
+
+t_test_tibble <- tibble(
+  Statistic = round(t_test_result$statistic, 2),
+  DF = round(t_test_result$parameter, 2),
+  `p-value` = signif(t_test_result$p.value, 3),
+  `Mean (Female = 0)` = round(t_test_result$estimate[1], 2),
+  `Mean (Female = 1)` = round(t_test_result$estimate[2], 2),
+  `95% CI Lower` = round(t_test_result$conf.int[1], 2),
+  `95% CI Upper` = round(t_test_result$conf.int[2], 2)
+)
+
+# Display the table.
+
+t_test_tibble %>%
+  gt() %>%
+  tab_header(
+    title = "T-Test Results: Reading Score by Gender"
+  )
+```
+
+To continue the analysis, we observe in Figure 2 the means for reading scores and gender similar to Figure 1 in that males have slightly higher mean scores, however, this time we add the school type. From this figure we observe the closeness of the means for females in both public and private schools. We do not observe a large difference in differences between these means. The same is true of the means for males when comparing for both school types, there is not a large difference in differences. However, males in both public and private schools have a higher variance than that of females.
+
+#### Figure 2. Reading Scores by Gender and School Type.
+
+```{r}
+#| echo: false
+
+# Calculate means for interaction.
+
+mean_data <- hsb2 %>%
+  group_by(female, schtyp) %>%
+  summarise(mean_read = mean(read, na.rm = TRUE), .groups = "drop")
+
+# Plot with boxplots + red interaction lines.
+
+ggplot(hsb2, aes(x = schtyp, y = read, fill = female)) +
+  geom_boxplot(position = position_dodge(width = 0.8)) +
+  geom_point(data = mean_data, 
+             aes(x = schtyp, y = mean_read, group = female),
+             position = position_dodge(width = 0.8),
+             size = 3, 
+             color = "red") +
+  geom_line(data = mean_data, 
+            aes(x = schtyp, y = mean_read, group = female),
+            position = position_dodge(width = 0.8),
+            size = 1.2,
+            color = "red") +
+  labs(
+    title = "Reading Scores by Gender and School Type (Red Interaction Lines)",
+    x = "School Type",
+    y = "Reading Score",
+    fill = "Gender"
+  ) +
+  theme_minimal(base_size = 14)
+```
+
+Table 3 adds clarity to what we observed in Figure 2. by displaying the metrics. For example, we can observe that on average, private school males scored 55.43 while public school males scored 52.35. The public school mean for females was 51.42, while the mean for private school females was 53.33. Whether comparing females or males to each other, school type did not appear to moderate much of an observed difference.
+
+#### Table 3. Summary Statistics for Reading Scores by Gender and School Type.
+
+```{r}
+#| echo: false
+
+hsb2 %>%
+  group_by(schtyp, female) %>%
+  summarize(
+    Mean = mean(read),
+    SD = sd(read),
+    n = n(),
+    .groups = "drop"
+  ) %>%
+  gt() %>%
+  fmt_number(columns = c(Mean, SD), decimals = 2)
+
+```
+
+In Table 4, the results of a two-way ANOVA are given to analyze the effects of gender and school type on reading scores. The results indicated no significant main effect of gender (F(1, 196) = 0.56, p = 0.456) or school type (F(1, 196) = 1.50, p = 0.222), and no significant interaction between gender and school type (F(1, 196) = 0.08, p = 0.771). Finally, based on this test, school type doesn't seem to moderate gender differences in reading scores.
+
+#### Table 4. Two-way ANOVA: Reading Score by Gender and School Type.
+
+```{r}
+#| echo: false
+
+# Run the two-way ANOVA model.
+
+twoway <- lm(read ~ female * schtyp, data = hsb2)
+
+# Tidy the ANOVA output.
+
+twoway_anova_tibble <- anova(twoway) %>%
+  broom::tidy() %>%
+  as_tibble()
+
+# Display nicely with rounding.
+
+twoway_anova_tibble %>%
+  mutate(
+    sumsq = round(sumsq, 2),
+    meansq = round(meansq, 2),
+    statistic = round(statistic, 2),
+    p.value = round(p.value, 2)
+  ) %>%
+  gt() %>%
+  tab_header(
+    title = "Two-Way ANOVA: Reading Score by Gender and School Type"
+  )
+
+
+```
+
+In Figure 3. we can observe reading scores by gender, school type, and social economic status. For public schools in the low and middle SES, we notice that reading scores are extremely similar. However, for high SES, Females have an observed slightly higher mean than that of males. For private schools, first we notice that there are no scores for males in the low SES category. We then observe that while males in the middle SES scored higher on average, females in the high SES scored higher on average. The observed differences in means appear in all cases to be not statistically significant at this stage. We will conduct more test to see if SES moderates the relationship between test scores and gender.
+
+#### Figure 3. Reading Scores by Gender, School Type, and SES.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Calculate means grouped by school type, SES, and gender.
+
+mean_data_facet <- hsb2 %>%
+  group_by(schtyp, ses, female) %>%
+  summarise(mean_read = mean(read, na.rm = TRUE), .groups = "drop")
+
+# Create the boxplot with red means and lines.
+
+ggplot(hsb2, aes(x = female, y = read, fill = female)) +
+  geom_boxplot() +
+  geom_point(data = mean_data_facet, 
+             aes(x = female, y = mean_read, group = 1), 
+             color = "red",
+             size = 2) +
+  geom_line(data = mean_data_facet,
+            aes(x = female, y = mean_read, group = 1), 
+            color = "red",
+            size = 1) +
+  facet_grid(schtyp ~ ses) +
+  labs(
+    title = "Reading Scores by Gender, School Type, and SES (with Means Connected)",
+    x = "Gender",
+    y = "Reading Score"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+```
+
+Table 5 adds clarity in that we observe the data behind figure 3. An interesting note about this table is that we also observe n, which tells us we have far fewer private school scores than that of public. We do observe that when comparing means with respect to gender, school type, and SES status, the difference in means is not statically significant.
+
+#### Table 5. Summary Statistics for Reading Scores by Gender, School Type, and SES.
+
+```{r}
+#| echo: false
+
+hsb2 %>%
+  group_by(schtyp, ses, female) %>%
+  summarise(
+    Mean = mean(read),
+    SD = sd(read),
+    n = n(),
+    .groups = "drop"
+  ) %>%
+  gt() %>%
+  fmt_number(columns = c(Mean, SD), decimals = 2)
+
+```
+
+In Table 6 we can observe the results from our one-way ANOVA that was conducted to compare the mean reading scores between males and females in private schools. The results showed that the effect of gender on reading scores was not statistically significant, F(1, 30) = 0.40, p = 0.531.
+
+Based on the results, we conclude that there is no statistically significant difference in mean reading scores between males and females attending private schools.
+
+#### Table 6. Two-way ANOVA: Reading Score by Gender for Private Schools.
+
+```{r}
+#| echo: false
+
+# Filter for private schools.
+
+twoway_private <- hsb2 %>%
+  filter(schtyp == "Private") %>%
+  lm(read ~ female, data = .)
+
+# Tidy the ANOVA output.
+
+twoway_private_anova <- anova(twoway_private) %>%
+  broom::tidy() %>%
+  as_tibble()
+
+# Display nicely with rounding.
+
+twoway_private_anova %>%
+  mutate(
+    sumsq = round(sumsq, 2),
+    meansq = round(meansq, 2),
+    statistic = round(statistic, 2),
+    p.value = round(p.value, 2)
+  ) %>%
+  gt() %>%
+  tab_header(
+    title = "One-Way ANOVA: Reading Score by Gender (Private Schools)"
+  )
+
+```
+
+In Table 7 we can observe the results from our one-way ANOVA that was conducted to examine whether there were differences in mean reading scores between males and females in public schools. The results showed no statistically significant effect of gender on reading scores, F(1, 166) = 0.33, p = 0.565. The data shows that any observed differences are likely due to random variation rather than a true difference between groups.
+
+Based on the results, we conclude that there is no statistically significant difference in mean reading scores between males and females attending public schools.
+
+#### Table 7. Two-way ANOVA: Reading Score by Gender for Public Schools.
+
+```{r}
+#| echo: false
+
+
+# Filter for public schools.
+
+twoway_public <- hsb2 %>%
+  filter(schtyp == "Public") %>%
+  lm(read ~ female, data = .)
+
+# Tidy the ANOVA output.
+
+twoway_public_anova <- anova(twoway_public) %>%
+  broom::tidy() %>%
+  as_tibble()
+
+# Display nicely with rounding.
+
+twoway_public_anova %>%
+  mutate(
+    sumsq = round(sumsq, 2),
+    meansq = round(meansq, 2),
+    statistic = round(statistic, 2),
+    p.value = round(p.value, 2)
+  ) %>%
+  gt() %>%
+  tab_header(
+    title = "One-Way ANOVA: Reading Score by Gender (Public Schools)"
+  )
+
+
+```
+
+Based on these tests in Table 6 and 7, SES does not moderate gender differences within school types.
+
+## Conclusion
+
+This analyses revealed that there are no statistically significant gender differences in mean reading scores in this dataset. Further, gender differences do not appear to be related to the type of school attended (public or private), as reading scores for males and females were similar across both settings. Finally, socioeconomic status (SES) does not seem to moderate gender differences within school types, as reading scores across gender remained consistent regardless of SES level. Overall, these results suggest that gender, school type, and SES do not meaningfully impact differences in reading scores in this dataset.

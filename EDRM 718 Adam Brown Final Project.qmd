@@ -1,27 +1,466 @@
 ---
 title: "EDRM 718 Adam Brown Final Project"
 author: "Adam Brown"
+date: "`r Sys.Date()`"
 format: pdf
 editor: visual
 ---
 
-## Quarto
+```{r}
+
+library(here)
+library(gt)
+library(readr)
+library(readxl)
+library(tibble)
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+```
+
+```{r}
+
+
+# First, I'm reading in the Excel files using read_excel so I can then convert them to CSV files. I could save each file in Excel as a CSV but why not let R do this for me. Then I will save the CSV files in my data folder so that I can import them using read_csv.
+
+# Reading in the Excel files into R.
+
+job_prep_demographics <- read_excel(here("data", "Job Prep Demographics.xlsx"))
+job_prep_gpa_data <- read_excel(here("data", "Job Prep GPA Data.xlsx"))
+job_prep_survey_results <- read_excel(here("data", "Job Prep Survey Results.xlsx"))
+
+# Writing the data to CSV files in the 'data' folder.
+
+write_csv(job_prep_demographics, here("data", "Job_Prep_Demographics.csv"))
+write_csv(job_prep_gpa_data, here("data", "Job_Prep_GPA_Data.csv"))
+write_csv(job_prep_survey_results, here("data", "Job_Prep_Survey_Results.csv"))
+
+
+```
+
+```{r}
+
+
+# Reading the CSV files into R using read_csv..
+
+job_prep_demographics <- read_csv(here("data", "Job_Prep_Demographics.csv"), col_names = FALSE)
+job_prep_gpa_data <- read_csv(here("data", "Job_Prep_GPA_Data.csv"), col_names = FALSE)
+job_prep_survey_results <- read_csv(here("data", "Job_Prep_Survey_Results.csv"), col_names = FALSE)
+
+# View the first few rows of each dataset to confirm they loaded correctly.
+
+head(job_prep_demographics)
+head(job_prep_gpa_data)
+head(job_prep_survey_results)
+
+
+```
+
+```{r}
+# Checking the Demo data for any problems that occurred during import.
+
+demo_issues <- problems(job_prep_demographics)
+
+# Viewing the problems.
+
+if (nrow(demo_issues) > 0) {
+  print("Problems were found during import:")
+  print(import_issues)
+} else {
+  print("No problems were found during import.")
+}
+
+# Checking the gpa data for any problems that occurred during import.
+
+gpa_issues <- problems(job_prep_gpa_data)
+
+# Viewing the problems.
+
+if (nrow(gpa_issues) > 0) {
+  print("Problems were found during import:")
+  print(import_issues)
+} else {
+  print("No problems were found during import.")
+}
+
+# Checking the survey data for any problems that occurred during import.
+
+survey_issues <- problems(job_prep_survey_results)
+
+# Viewing the problems, if any.
+
+if (nrow(survey_issues) > 0) {
+  print("Problems were found during import:")
+  print(import_issues)
+} else {
+  print("No problems were found during import.")
+}
+
+```
+
+## Description
 
 Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
 
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+## Analysis
 
 ```{r}
-1 + 1
-```
 
-You can add options to executable code like this
+# file 1
+
+# I am now doing several things. First, I have to add a column and put the subject in rows and not simply at the top of each section. Second, I am removing the first six rows as I do not need this data and setting the new row one as the header. Third, I am correcting the header value of Humanities that I created in my first two steps by way of processing and I am setting this column header as Subjects. Next, I am setting the column types and removing any Subjects rows that have Other as this was my term for unnecessary data. Lastly, I'm cleaning the column names to valid and consistent.
+
+# Add the discipline column to mark each section (e.g., Humanities, Social Sciences)
+job_prep_demographics <- job_prep_demographics %>%
+  mutate(discipline = case_when(
+    row_number() <= 145 ~ "Humanities",  # Adjust row numbers for Humanities
+    row_number() > 150 & row_number() <= 303 ~ "Social Sciences",  # Adjust for Social Sciences
+    row_number() > 308 & row_number() <= 463 ~ "Natural Sciences",  # Adjust for Natural Sciences
+    row_number() > 468 & row_number() <= 617 ~ "Formal Sciences",  # Adjust for Formal Sciences
+    row_number() > 622 ~ "Applied Sciences",  # Adjust for Applied Sciences
+    TRUE ~ "Other"
+  ))
+
+# Remove the first six rows (metadata/incorrect headers)
+job_prep_demographics_clean <- job_prep_demographics %>%
+  slice(-1, -2, -3, -4, -5, -6)  # Remove the first 6 rows with non-data
+
+# Set correct column names, where row 1 should be the header
+colnames(job_prep_demographics_clean) <- job_prep_demographics_clean[1, ]
+job_prep_demographics_clean <- job_prep_demographics_clean[-1, ]  # Remove the first row now that it is the header
+
+# Rename the "Humanities" column to "Subjects"
+job_prep_demographics_clean <- job_prep_demographics_clean %>%
+  rename(Subjects = Humanities)
+
+# Set the correct column types
+job_prep_demographics_clean <- job_prep_demographics_clean %>%
+  mutate(
+    ID = as.integer(ID),
+    `School Code` = as.integer(`School Code`),
+    Age = as.integer(Age),
+    Gender = as.character(Gender),  # Convert gender to character for easier manipulation
+    Subjects = as.character(Subjects)  # Ensure Subjects is a character column
+  )
+
+# Remove rows where the value in the Subjects column is "Other"
+job_prep_demographics_clean <- job_prep_demographics_clean %>%
+  filter(Subjects != "Other")
+
+# Clean column names to make them syntactically valid and consistent
+colnames(job_prep_demographics_clean) <- make.names(colnames(job_prep_demographics_clean))
+
+# View the cleaned data
+head(job_prep_demographics_clean)
+```
 
 ```{r}
-#| echo: false
-2 * 2
+
+# file 2
+
+# Remove the first four rows with non-data and metadata
+job_prep_gpa_data_tidy <- job_prep_gpa_data %>%
+  slice(-1, -2, -3, -4)  # Remove first four rows
+
+# Set the column names using row 1 (now row 5 after removing the first 4 rows)
+colnames(job_prep_gpa_data_tidy) <- job_prep_gpa_data_tidy[1, ]
+job_prep_gpa_data_tidy <- job_prep_gpa_data_tidy[-1, ]  # Remove the first row which is now the header
+
+# Rename columns and calculate average GPA
+job_prep_gpa_data_tidy <- job_prep_gpa_data_tidy %>%
+  rename(
+    first_semester_gpa = "S1 GPA",
+    second_semester_gpa = "S2 GPA",
+    credits_first_semester = "S1 Credits",
+    credits_second_semester = "S2 Credits"
+  ) 
+
+# Set the column types and format GPA columns
+job_prep_gpa_data_tidy <- job_prep_gpa_data_tidy %>%
+  # Convert columns to the correct types
+  mutate(
+    ID = as.integer(ID),
+    `School Code` = as.integer(`School Code`),
+    Age = as.integer(Age),
+    Gender = as.character(Gender),
+    credits_first_semester = as.numeric(credits_first_semester),
+    first_semester_gpa = as.numeric(first_semester_gpa),
+    credits_second_semester = as.numeric(credits_second_semester),
+    second_semester_gpa = as.numeric(second_semester_gpa)
+  ) %>%
+  # Format GPA columns to 2 decimal places (no rounding)
+  mutate(
+    first_semester_gpa = format(first_semester_gpa, digits = 3, nsmall = 2),
+    second_semester_gpa = format(second_semester_gpa, digits = 3, nsmall = 2)
+)
+    
+  #mutate(
+   # avg_gpa = (first_semester_gpa * credits_first_semester + second_semester_gpa * credits_second_semester) / 
+    #         (credits_first_semester + credits_second_semester)
+  #)) %>%
+  #select(ID, first_semester_gpa, second_semester_gpa, avg_gpa, credits_first_semester, credits_second_semester)
+
+# View the tidied data
+head(job_prep_gpa_data_tidy)
+
+
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+```{r}
+
+# file 3
+
+# Slice off the first three rows
+job_prep_results_clean <- job_prep_survey_results %>%
+  slice(-1, -2, -3)  # Remove first 3 rows
+
+# Set the correct column names (the 4th row, now the first row)
+colnames(job_prep_results_clean) <- job_prep_results_clean[1, ]
+job_prep_results_clean <- job_prep_results_clean[-1, ]  # Remove the first row now that it is the header
+
+# Rename columns to replace spaces with underscores (for Item 1, Item 2, ...)
+colnames(job_prep_results_clean)[2:15] <- gsub(" ", "_", colnames(job_prep_results_clean)[2:15])
+
+# Convert all columns to integer type
+job_prep_results_clean <- job_prep_results_clean %>%
+  mutate(across(everything(), as.integer))
+
+# View the cleaned dataset
+head(job_prep_results_clean)
+
+```
+
+```{r}
+
+# file 3b
+
+# Assuming reverse scoring of specific items (e.g., Item_4, Item_9, Item_12, Item_13)
+job_prep_survey_results_tidy <- job_prep_results_clean %>%
+  mutate(
+    # Reverse-score specific items (e.g., Item_4, Item_9, Item_12, Item_13)
+    Item_4 = 7 - Item_4, 
+    Item_9 = 7 - Item_9,
+    Item_12 = 7 - Item_12,
+    Item_13 = 7 - Item_13,
+    optimism_score = rowSums(select(., starts_with("Item_")), na.rm = TRUE)  # Sum across all Likert items
+  ) %>%
+  select(ID, optimism_score, starts_with("Item_"))  # Keep relevant columns
+
+# Check the tidied data
+head(job_prep_survey_results_tidy)
+```
+
+```{r}
+# Step 1: Check the column names in each dataset to ensure 'ID' is consistent
+colnames(job_prep_demographics_clean)
+colnames(job_prep_gpa_data_tidy)
+colnames(job_prep_survey_results_tidy)
+
+# Step 2: Check the first few rows of each dataset to make sure 'ID' is present and formatted correctly
+head(job_prep_demographics_clean)
+head(job_prep_gpa_data_tidy)
+head(job_prep_survey_results_tidy)
+
+# Step 3: Remove any leading or trailing spaces in column names (if they exist)
+colnames(job_prep_demographics_clean) <- trimws(colnames(job_prep_demographics_clean))
+colnames(job_prep_gpa_data_tidy) <- trimws(colnames(job_prep_gpa_data_tidy))
+colnames(job_prep_survey_results_tidy) <- trimws(colnames(job_prep_survey_results_tidy))
+
+# Step 4: Ensure 'ID' is an integer in all datasets
+job_prep_demographics_clean <- job_prep_demographics_clean %>%
+  mutate(ID = as.integer(ID))
+
+job_prep_gpa_data_tidy <- job_prep_gpa_data_tidy %>%
+  mutate(ID = as.integer(ID))
+
+job_prep_survey_results_tidy <- job_prep_survey_results_tidy %>%
+  mutate(ID = as.integer(ID))  # Ensure ID is integer
+
+# Step 5: Perform the left joins again after ensuring column consistency
+job_prep_combined <- job_prep_demographics_clean %>%
+  left_join(
+    job_prep_gpa_data_tidy %>%
+      select(ID, credits_first_semester, credits_second_semester, first_semester_gpa, second_semester_gpa),
+    by = "ID"
+  ) %>%
+  left_join(
+    job_prep_survey_results_tidy %>%
+      select(ID, optimism_score, Item_1, Item_2, Item_3, Item_4, Item_5, Item_6, Item_7, Item_8, Item_9, Item_10, Item_11, Item_12, Item_13, Item_14),  # Select specific columns from Table 3
+    by = "ID"
+  )
+
+# Step 6: View the combined data
+head(job_prep_combined)
+
+```
+
+```{r}
+# Here I am taking my clean joined table and removing the rows that contain NA for survey responses. 
+
+# Remove rows with any NA values.
+
+job_prep_combined_clean <- job_prep_combined %>%
+  drop_na()
+
+# Convert columns to the correct types after dropping NA values
+job_prep_combined_clean <- job_prep_combined_clean %>%
+  mutate(
+    # Convert 'Item_1' through 'Item_14' to integers
+    across(starts_with("Item_"), as.integer),
+    
+    # Convert 'optimism_score' to integer
+    optimism_score = as.integer(optimism_score),
+    
+    # Convert GPA and credits columns to numeric
+    second_semester_gpa = as.numeric(second_semester_gpa),
+    first_semester_gpa = as.numeric(first_semester_gpa),
+    credits_first_semester = as.numeric(credits_first_semester),
+    credits_second_semester = as.numeric(credits_second_semester)
+  )
+
+# View the cleaned data with the updated column types
+head(job_prep_combined_clean)
+
+# View the cleaned data with Item_1 through Item_14 as integers
+head(job_prep_combined_clean)
+
+```
+
+```{r}
+
+# Plot the first semester GPA against the second semester GPA
+ggplot(job_prep_combined_clean, aes(x = first_semester_gpa, y = second_semester_gpa)) +
+  geom_point() +  # Scatter plot of the data
+  geom_smooth(method = "lm", col = "red") +  # Add a linear regression line
+  labs(title = "First Semester GPA vs Second Semester GPA",
+       x = "First Semester GPA",
+       y = "Second Semester GPA")
+
+
+```
+
+```{r}
+
+# Fit a linear model to predict second semester GPA from first semester GPA
+model <- lm(second_semester_gpa ~ first_semester_gpa, data = job_prep_combined_clean)
+
+# Calculate residuals
+job_prep_combined_clean$residuals <- residuals(model)
+
+# Plot the residuals
+ggplot(job_prep_combined_clean, aes(x = first_semester_gpa, y = residuals)) +
+  geom_point() +
+  labs(title = "Residuals from Predicted Second Semester GPA",
+       x = "First Semester GPA",
+       y = "Residuals")
+
+
+```
+
+```{r}
+
+# Calculate the 90th percentile of the absolute residuals
+residual_threshold <- quantile(abs(job_prep_combined_clean$residuals), 0.9)
+
+# Exclude students whose absolute residuals are above the 90th percentile
+job_prep_combined_clean_filtered <- job_prep_combined_clean %>%
+  filter(abs(residuals) <= residual_threshold)
+
+# Check the number of students excluded
+nrow(job_prep_combined_clean) - nrow(job_prep_combined_clean_filtered)
+
+```
+
+```{r}
+
+# Highlight students with the largest residuals in the scatter plot
+ggplot(job_prep_combined_clean, aes(x = first_semester_gpa, y = second_semester_gpa)) +
+  geom_point(aes(color = abs(residuals) > residual_threshold)) +  # Color points based on large residuals
+  geom_smooth(method = "lm", col = "red") +
+  labs(title = "First Semester GPA vs Second Semester GPA with Large Residuals Highlighted",
+       x = "First Semester GPA",
+       y = "Second Semester GPA") +
+  scale_color_manual(values = c("black", "red"), labels = c("Normal", "Large Residuals"))
+
+```
+
+```{r}
+
+# Ensure columns are numeric before calculating the weighted GPA
+job_prep_combined_clean_filtered <- job_prep_combined_clean_filtered %>%
+  mutate(
+    first_semester_gpa = as.numeric(first_semester_gpa),
+    credits_first_semester = as.numeric(credits_first_semester),
+    second_semester_gpa = as.numeric(second_semester_gpa),
+    credits_second_semester = as.numeric(credits_second_semester)
+  )
+
+# Calculate the weighted average GPA
+job_prep_combined_clean_filtered <- job_prep_combined_clean_filtered %>%
+  mutate(
+    weighted_avg_gpa = (first_semester_gpa * credits_first_semester + second_semester_gpa * credits_second_semester) /
+                       (credits_first_semester + credits_second_semester)
+  )
+
+# View the updated data with the weighted average GPA
+head(job_prep_combined_clean_filtered)
+
+```
+
+```{r}
+
+
+# Calculate weighted average GPA based on the number of credits taken in each semester
+job_prep_combined_clean_filtered <- job_prep_combined_clean_filtered %>%
+  mutate(
+    weighted_avg_gpa = (first_semester_gpa * credits_first_semester + second_semester_gpa * credits_second_semester) /
+                       (credits_first_semester + credits_second_semester)
+  )
+
+# View the updated data with the weighted average GPA
+head(job_prep_combined_clean_filtered)
+
+```
+
+```{r}
+
+# Load the function from the external R script in the "functions" folder
+source("functions/likert_functions.R")
+
+# Now you can use the function as needed
+job_prep_combined_clean_filtered <- calculate_likert_score(
+  job_prep_combined_clean_filtered,   # The data
+  scale = 6,                          # The scale used for the items (e.g., 6-point scale)
+  reverse_items = c(4, 9, 12, 13)         # Items to reverse score
+)
+
+# View the data with the total score
+head(job_prep_combined_clean_filtered)
+
+```
+
+```{r}
+
+# Source the function from the 'functions' folder
+source("functions/find_largest_residuals.R")
+
+# Example usage of the function
+result <- find_largest_residuals(
+  job_prep_combined_clean_filtered,     # The data frame
+  response_var = "total_score",          # The response variable
+  explanatory_var = "first_semester_gpa", # The explanatory variable (e.g., GPA)
+  p = 10                                 # Top 10 largest residuals
+)
+
+# Add the result as a new column in the data frame and rename the table
+job_prep_combined_clean_filtered_largest <- job_prep_combined_clean_filtered %>%
+  mutate(large_residuals = result)
+
+# View the data with the new column indicating large residuals
+head(job_prep_combined_clean_filtered_largest)
+
+```
+
+## Conclusion
