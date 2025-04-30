@@ -104,6 +104,8 @@ if (nrow(survey_issues) > 0) {
 
 Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
 
+**Source of Data:** Testing Company (Dr. Michael Seaman), hsb2-current CSV file.
+
 ## Analysis
 
 ```{r}
@@ -327,6 +329,8 @@ head(job_prep_combined_clean)
 head(job_prep_combined_clean)
 
 ```
+
+#### Figure 1. Reading Scores by Gender.
 
 ```{r}
 
