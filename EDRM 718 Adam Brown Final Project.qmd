@@ -107,7 +107,7 @@ if (nrow(survey_issues) > 0) {
 
 ## Description
 
-This research report explores the relationships between optimism scores (from the survey data and measures their outlook on employment and career readiness), reported GPA's, and the college students academic disciplines. More specifically, this report seeks to answer these three questions, Is senior-year grade point average (GPA) related to the degree of optimism about future employment? Is the relationship of GPA and optimism consistent or different for different categories of disciplines? Is the level of optimism different for different categories of disciplines? The three datasets include survey results from over 700 college seniors. graduating this spring, representing 23 major universities in the United States. These datasets include demographic data, academic performance data, and data from a short (14-item) Likert-type survey which sought to determine their optimism regarding their readiness and likelihood of obtaining a job after graduation
+This research report explores the relationships between optimism scores (from the survey data and measures their outlook on employment and career readiness), reported GPA's, and the college students academic disciplines or subjects. More specifically, this report seeks to answer these three questions, Is senior-year grade point average (GPA) related to the degree of optimism about future employment? Is the relationship of GPA and optimism consistent or different for different categories of disciplines? Is the level of optimism different for different categories of disciplines? The three datasets include survey results from over 700 college seniors. graduating this spring, representing 23 major universities in the United States. These datasets include demographic data, academic performance data, and data from a short (14-item) Likert-type survey which sought to determine their optimism regarding their readiness and likelihood of obtaining a job after graduation
 
 **Source of Data:** Real World Solutions, Job Prep Demographics, Job Prep GPA, and Job Prep Survey Results. Sourced 24 April 2025.
 
@@ -398,7 +398,7 @@ nrow(job_prep_combined_clean) - nrow(job_prep_combined_clean_filtered)
 
 ```
 
-In Figure 3, we can observe the students who are among those with the ten percent largest residuals as they are noted in red. We note from our data that there are 54 students who fall into this category. I will remove those students from the data prior to calculating weighted GPA and we will continue to move through the analysis.
+In Figure 3, we can observe the students who are among those with the ten percent largest residuals as they are noted in red. We note from our data that there are 54 students who fall into this category. I will remove those students from the data prior to calculating weighted GPA, which we will call "Senior Year GPA" and we will continue to move through the analysis.
 
 #### Figure 3. Scatterplot of First Semester GPA Vs Second Semester GPA with Large Residuals.
 
@@ -683,7 +683,7 @@ model_by_subject <- job_prep_combined_clean_filtered_largest %>%
 # Extract coefficients and p-values from each model, round to two decimal places.
 
 model_summary <- model_by_subject %>%
-  summarise(
+  summarize(
     Subjects = first(Subjects),  
     Estimate = round(coef(model)[2], 2),  
     P_value = round(summary(model)$coefficients[2, 4], 2)  
@@ -717,12 +717,15 @@ In table 4, we observe the interaction model (Relationship) of Optimism Score an
 #| warning: false
 
 # Fit an interaction model.
+
 interaction_model <- lm(total_score ~ weighted_avg_gpa * Subjects, data = job_prep_combined_clean_filtered_largest)
 
 # Summary of the interaction model.
+
 interaction_summary <- summary(interaction_model)
 
 # Extract coefficients, standard errors, t-values, p-values, and 95% CI from the interaction model.
+
 interaction_results <- tibble(
   Term = rownames(interaction_summary$coefficients),
   Estimate = round(interaction_summary$coefficients[, 1], 2),
@@ -734,7 +737,8 @@ interaction_results <- tibble(
   Upper_CI = round(confint(interaction_model)[, 2], 2)
 )
 
-# Display the interaction results with confidence intervals
+# Display the interaction results with confidence intervals.
+
 interaction_results %>%
   gt() %>%
   tab_header(
@@ -758,7 +762,7 @@ interaction_results %>%
 
 #### Analysis for Question #3: Is the Level of Optimism Different for Different Categories of Disciplines?
 
-In Figure 8,
+In Figure 8 we can observe the following in relationship to our question, Is the level of optimism different for different categories of disciplines?, students in applied and formal sciences appear to have higher and more consistent levels of optimism when compared with students in humanities or natural sciences. In addition, students in the social sciences discipline have higher variability than other disciplines, meaning some student are very optimistic while others are very pessimistic. I will run more analysis on this data in Table 5 by running an ANOVA test.
 
 #### Figure 8. Distribution of Optimism Scores Across Subjects.
 
@@ -776,6 +780,8 @@ ggplot(job_prep_combined_clean_filtered_largest, aes(x = Subjects, y = total_sco
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
+
+In table 5, we observe a one-way ANOVA test of Optimism Scores across different subjects to help us continue to answer our research question. In this table we observe an F-value of 114.10 which is quite large and tells us there is a strong relationship between Subjects and Optimism Scores and that the level of optimism about future employment differs significantly based on the subject. The observed P value also tell us that this could be statistically significant, and we would normally reject the null hypothesis of: there is no observed difference in optimism scores across subjects. However, in the next table we run 95% confidence intervals which will tell us with greater confidence.
 
 #### Table 5. One-way ANOVA of Optimism Score Across Subjects.
 
@@ -826,7 +832,9 @@ anova_results_gt
 
 ```
 
-#### Table 6. ?
+In Table 6, we observe in general by reviewing the results of the table that the level of optimism is significantly different across various subjects. More specifically, Humanities has a much lower level of optimism than that of all of other sciences. In addition, the differences between Applied, Formal, and Natural Sciences are significant in most cases, while the comparison between Social and Natural Sciences is not significant. For example, we can predict with 95% confidence that the optimism score for Humanities will fall between -17.77 and -12.95 lower than Formal Sciences, with GPA held constant. Finally, we can answer our research question, Is the level of optimism different for different categories of disciplines? And the answer is Yes.
+
+#### Table 6. Tukey Post-hoc Test of ANOVA Results in Table 5.
 
 ```{r}
 #| echo: false
@@ -873,3 +881,5 @@ tukey_results_gt
 ```
 
 ## Conclusion
+
+This report and analysis aimed to reveal the answers to three research questions, Is senior-year grade point average (GPA) related to the degree of optimism about future employment? Is the relationship of GPA and optimism consistent or different for different categories of disciplines? Is the level of optimism different for different categories of disciplines?, which have been answered through the analysis. First, the analysis revealed that there is not a statistically significant relationship between Senior Year GPA and the degree of optimism about future employment. Meaning that Senior Year GPA does not have a meaningful influence on optimism about future employment. Next, the relationship between GPA and optimism does not appear to be consistent across different academic disciplines. The research also suggested that the impact of Senior Year GPA on Optimism Score depends on the Subject. Lastly, based on the data presented, the level of optimism about future employment does differ significantly across Subjects.
