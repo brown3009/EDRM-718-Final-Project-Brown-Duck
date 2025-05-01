@@ -133,9 +133,9 @@ sum(5,789,902,872,394)
 
 Indentation shall not be used in code or comments except for the following cases:
 
--   If a function exceeds 80 characters, the remaining lines that follow shall be indented to line up inside the first bracket. See example below.
+-   If a function exceeds 80 characters, the remaining lines that follow shall be break to the next line depending on the size of the screen. See example below.
 
--   Comments that exceed 80 characters shall be indented to line-up with the beginning of the line above. See examples below.
+-   Comments that relate to a line within a line shall be indented to line-up with the beginning of the line below. See examples below.
 
 -   Comments that are directly related to a function that appear under a function shall also be indented to show affiliation with the function. See example below.
 
@@ -145,6 +145,10 @@ Indentation shall not be used in code or comments except for the following cases
 
 long_function_name <- c(variable_1, Variable_2, Variable_3,                           Variable_4, Variable_5)
 
+# This comment is about the above function.
+
+          long_function_name <- c(variable_1, Variable_2, Variable_3,                           Variable_4, Variable_5)
+
           # This comment is about the above function.
 
 ```
@@ -153,7 +157,7 @@ long_function_name <- c(variable_1, Variable_2, Variable_3,                     
 
 ```{r}
 
-# This is a comment which when completely written out will        exceed 80 characters and break to the next line.
+# This is a comment which when completely written out will exceed 80 characters and break to the next line.
 
 ```
 
