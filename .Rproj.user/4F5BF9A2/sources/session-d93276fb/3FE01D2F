@@ -3,9 +3,9 @@
     "path": "~/R Projects/EDRM 718/ProjectI/EDRM 718 Adam Brown Project I.qmd",
     "project_path": null,
     "type": "quarto_markdown",
-    "hash": "0",
+    "hash": "1777922577",
     "contents": "",
-    "dirty": true,
+    "dirty": false,
     "created": 1745964021595.0,
     "source_on_save": false,
     "relative_order": 7,
@@ -17,15 +17,15 @@
         "docOutlineVisible": "1",
         "rmdVisualCollapsedChunks": "",
         "rmdVisualModeLocation": "1158:588.148193359375",
-        "cursorPosition": "42,0",
-        "scrollLine": "0"
+        "cursorPosition": "364,626",
+        "scrollLine": "327"
     },
     "folds": "",
-    "lastKnownWriteTime": 1745804739,
+    "lastKnownWriteTime": 1746113398,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1746039127769,
+    "last_content_update": 1746113398121,
     "read_only": false,
     "read_only_alternatives": []
 }
