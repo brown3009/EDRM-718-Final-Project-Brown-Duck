@@ -1,0 +1,167 @@
+---
+title: "Adam's Style Guide"
+author: "Adam Brown"
+format: html
+editor: visual
+---
+
+# Adam's Style Guide
+
+Adam's style guide contains outlines of the following information: how files will be named, when lower and upper cases will be used, using spacing and object names, length, commenting, assignment operations, and indentation.
+
+## Section 1
+
+## File Naming
+
+I will use the standard file naming system that Dr. Michael Seaman uses which includes the course name and number, the student's first and last name, and the name of the assignment:
+
+**Correct Example:**
+
+EDRM 718 Adam Brown Project A.rmd
+
+**Incorrect Example:**
+
+Adam's Project A.rmd
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+## Casing
+
+All code shall be written in all lowercase unless a function requires and upper case. All comments will follow the AP Style and have the first letter capitalized. All titles or headers will have the first letter of each word in upper case.
+
+**Good Code Example:**
+
+```{r}
+
+sum(2+2)
+```
+
+**Incorrect Code Example:**
+
+```{r}
+
+Sum(2+2)
+```
+
+**Good Title Example:**
+
+Section Header
+
+**Good Comment Example:**
+
+```{r}
+
+# All comments shall appear this way.
+```
+
+## Spacing and Length
+
+Spacing in code shall be used in the following ways, functions shall not have a space between lines, however comments shall have a space. An example is shown below:
+
+**Good Example:**
+
+```{r}
+
+# This is a function that helps us figure out the mean of a set of numbers.
+
+mean(2,3,4,5,6,7)
+
+#The next line of code takes find the median of the same set of numbers from above.
+
+median(2,3,4,5,6,7)
+
+```
+
+Code shall not have spaces as shown above, however comments will have spaces between words to formulate sentences. Both are shown above in the example codes.
+
+Length shall default to the standard in R, 80 characters per line or shorter.
+
+## Object Names
+
+Object names shall only have letters, numbers, periods, and underscores as shown below. The names shall be descriptive as to know where the delineate from.
+
+**Good Example:**
+
+```{r}
+
+# This code assigns the names to the distance students travel in miles.
+
+names(distance) <- c("Jack", "Saeed", "Kartick", "Unum","Adam")
+```
+
+## Commenting
+
+Comments shall follow AP style as shown below, however only the first word shall be upper cased no matter the words in the comment.
+
+**Good Example:**
+
+```{r}
+
+# This comment follows ap style. 
+
+```
+
+**Incorrect Example:**
+
+```{r}
+# This Comment Does NOT Follow AP Style!
+```
+
+## Assignment Operations
+
+Assignment operators will be used in the prescribed way as set by R. Meaning that no lines will start with an operator. Please see examples below.
+
+```{r}
+
+# This function shall solve the algebrac formula below.
+
+sum(5,789,902,872,394) *
+  sum(126,354,275,896)
+
+```
+
+```{r}
+
+# This function shall not solve the algebrac formula below.
+
+sum(5,789,902,872,394)
+  * sum(126,354,275,896)
+
+```
+
+## Indentation
+
+Indentation shall not be used in code or comments except for the following cases:
+
+-   If a function exceeds 80 characters, the remaining lines that follow shall be indented to line up inside the first bracket. See example below.
+
+-   Comments that exceed 80 characters shall be indented to line-up with the beginning of the line above. See examples below.
+
+-   Comments that are directly related to a function that appear under a function shall also be indented to show affiliation with the function. See example below.
+
+**Good Example Long Functions:**
+
+```{r}
+
+long_function_name <- c(variable_1, Variable_2, Variable_3,                           Variable_4, Variable_5)
+
+          # This comment is about the above function.
+
+```
+
+**Good Example Comments:**
+
+```{r}
+
+# This is a comment which when completely written out will        exceed 80 characters and break to the next line.
+
+```
+
+## Rounding
+
+```{r}
+
+
+# Each dataset that is displayed will be rounded to two decimal places. If it isn't displayed, it won't be rounded. 
+
+```
