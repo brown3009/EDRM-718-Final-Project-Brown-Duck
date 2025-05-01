@@ -1,0 +1,887 @@
+---
+title: "EDRM 718 Adam Brown Final Project"
+author: "Adam Brown"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    output_dir: "C:\\Users\\acb38\\Documents\\R Projects\\EDRM 718 Final Project Brown Duck"
+editor: visual
+---
+
+```{r}
+#| include: false
+
+library(here)
+library(gt)
+library(readr)
+library(readxl)
+library(tibble)
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(knitr)
+
+```
+
+```{r}
+#| include: false
+
+
+# First, I'm reading in the Excel files using read_excel so I can then convert them to CSV files. I could save each file in Excel as a CSV but why not let R do this for me. Then I will save the CSV files in my data folder so that I can import them using read_csv.
+
+# Reading in the Excel files into R.
+
+job_prep_demographics <- read_excel(here("data", "Job Prep Demographics.xlsx"))
+job_prep_gpa_data <- read_excel(here("data", "Job Prep GPA Data.xlsx"))
+job_prep_survey_results <- read_excel(here("data", "Job Prep Survey Results.xlsx"))
+
+# Writing the data to CSV files in the 'data' folder.
+
+write_csv(job_prep_demographics, here("data", "Job_Prep_Demographics.csv"))
+write_csv(job_prep_gpa_data, here("data", "Job_Prep_GPA_Data.csv"))
+write_csv(job_prep_survey_results, here("data", "Job_Prep_Survey_Results.csv"))
+
+
+```
+
+```{r}
+#| include: false
+
+
+# Reading the CSV files into R using read_csv..
+
+job_prep_demographics <- read_csv(here("data", "Job_Prep_Demographics.csv"), col_names = FALSE)
+job_prep_gpa_data <- read_csv(here("data", "Job_Prep_GPA_Data.csv"), col_names = FALSE)
+job_prep_survey_results <- read_csv(here("data", "Job_Prep_Survey_Results.csv"), col_names = FALSE)
+
+# View the first few rows of each dataset to confirm they loaded correctly.
+
+head(job_prep_demographics)
+head(job_prep_gpa_data)
+head(job_prep_survey_results)
+
+
+```
+
+```{r}
+#| include: false
+# Checking the Demo data for any problems that occurred during import.
+
+demo_issues <- problems(job_prep_demographics)
+
+# Viewing the problems.
+
+if (nrow(demo_issues) > 0) {
+  print("Problems were found during import:")
+  print(import_issues)
+} else {
+  print("No problems were found during import.")
+}
+
+# Checking the gpa data for any problems that occurred during import.
+
+gpa_issues <- problems(job_prep_gpa_data)
+
+# Viewing the problems.
+
+if (nrow(gpa_issues) > 0) {
+  print("Problems were found during import:")
+  print(import_issues)
+} else {
+  print("No problems were found during import.")
+}
+
+# Checking the survey data for any problems that occurred during import.
+
+survey_issues <- problems(job_prep_survey_results)
+
+# Viewing the problems, if any.
+
+if (nrow(survey_issues) > 0) {
+  print("Problems were found during import:")
+  print(import_issues)
+} else {
+  print("No problems were found during import.")
+}
+
+```
+
+## Description
+
+This research report explores the relationships between optimism scores (from the survey data and measures their outlook on employment and career readiness), reported GPAs, and the college students academic disciplines or subjects. More specifically, this report seeks to answer these three questions, Is senior-year grade point average (GPA) related to the degree of optimism about future employment? Is the relationship of GPA and optimism consistent or different for different categories of disciplines? Is the level of optimism different for different categories of disciplines? The three datasets include survey results from over 700 college seniors. graduating this spring, representing 23 major universities in the United States. These datasets include demographic data, academic performance data, and data from a short (14-item) Likert-type survey which sought to determine their optimism regarding their readiness and likelihood of obtaining a job after graduation
+
+**Source of Data:** Real World Solutions, Job Prep Demographics, Job Prep GPA, and Job Prep Survey Results. Sourced 24 April 2025.
+
+## Analysis
+
+I begin my analysis reading in the three separate data files, tidying the data that is missing or has problems, and then joining the files together using my unique key, which in this case is Student ID number. Now that I have completed the data processing and cleaning, I start by examining the reported GPAs for the students from the first and second semester. We need to verify consistency of GPAs before we can create a weighted GPA average.
+
+```{r}
+#| include: false
+
+# File # 1 - Demo Data.
+
+# I am now doing several things. First, I have to add a column and put the subject in rows and not simply at the top of each section. Second, I am removing the first six rows as I do not need this data and setting the new row one as the header. Third, I am correcting the header value of Humanities that I created in my first two steps by way of processing and I am setting this column header as Subjects. Next, I am setting the column types and removing any Subjects rows that have Other as this was my term for unnecessary data. Lastly, I'm cleaning the column names to valid and consistent.
+
+# Add the discipline column to mark each section (e.g., Humanities, Social Sciences)
+job_prep_demographics <- job_prep_demographics %>%
+  mutate(discipline = case_when(
+    row_number() <= 145 ~ "Humanities",  # Adjust row numbers for Humanities
+    row_number() > 150 & row_number() <= 303 ~ "Social Sciences",  # Adjust for Social Sciences
+    row_number() > 308 & row_number() <= 463 ~ "Natural Sciences",  # Adjust for Natural Sciences
+    row_number() > 468 & row_number() <= 617 ~ "Formal Sciences",  # Adjust for Formal Sciences
+    row_number() > 622 ~ "Applied Sciences",  # Adjust for Applied Sciences
+    TRUE ~ "Other"
+  ))
+
+# Remove the first six rows (metadata/incorrect headers)
+job_prep_demographics_clean <- job_prep_demographics %>%
+  slice(-1, -2, -3, -4, -5, -6)  # Remove the first 6 rows with non-data
+
+# Set correct column names, where row 1 should be the header
+colnames(job_prep_demographics_clean) <- job_prep_demographics_clean[1, ]
+job_prep_demographics_clean <- job_prep_demographics_clean[-1, ]  # Remove the first row now that it is the header
+
+# Rename the "Humanities" column to "Subjects"
+job_prep_demographics_clean <- job_prep_demographics_clean %>%
+  rename(Subjects = Humanities)
+
+# Set the correct column types
+job_prep_demographics_clean <- job_prep_demographics_clean %>%
+  mutate(
+    ID = as.integer(ID),
+    `School Code` = as.integer(`School Code`),
+    Age = as.integer(Age),
+    Gender = as.character(Gender),  # Convert gender to character for easier manipulation
+    Subjects = as.character(Subjects)  # Ensure Subjects is a character column
+  )
+
+# Remove rows where the value in the Subjects column is "Other"
+job_prep_demographics_clean <- job_prep_demographics_clean %>%
+  filter(Subjects != "Other")
+
+# Clean column names to make them syntactically valid and consistent
+colnames(job_prep_demographics_clean) <- make.names(colnames(job_prep_demographics_clean))
+
+# View the cleaned data
+head(job_prep_demographics_clean)
+```
+
+```{r}
+#| include: false
+
+# File 2 - GPA data.
+
+# Remove the first four rows with non-data and metadata
+job_prep_gpa_data_tidy <- job_prep_gpa_data %>%
+  slice(-1, -2, -3, -4)  # Remove first four rows
+
+# Set the column names using row 1 (now row 5 after removing the first 4 rows)
+colnames(job_prep_gpa_data_tidy) <- job_prep_gpa_data_tidy[1, ]
+job_prep_gpa_data_tidy <- job_prep_gpa_data_tidy[-1, ]  # Remove the first row which is now the header
+
+# Rename columns and calculate average GPA
+job_prep_gpa_data_tidy <- job_prep_gpa_data_tidy %>%
+  rename(
+    first_semester_gpa = "S1 GPA",
+    second_semester_gpa = "S2 GPA",
+    credits_first_semester = "S1 Credits",
+    credits_second_semester = "S2 Credits"
+  ) 
+
+# Set the column types and format GPA columns
+job_prep_gpa_data_tidy <- job_prep_gpa_data_tidy %>%
+  # Convert columns to the correct types
+  mutate(
+    ID = as.integer(ID),
+    `School Code` = as.integer(`School Code`),
+    Age = as.integer(Age),
+    Gender = as.character(Gender),
+    credits_first_semester = as.numeric(credits_first_semester),
+    first_semester_gpa = as.numeric(first_semester_gpa),
+    credits_second_semester = as.numeric(credits_second_semester),
+    second_semester_gpa = as.numeric(second_semester_gpa)
+  ) %>%
+  
+  # Round GPA columns to 2 decimal places
+mutate(
+  first_semester_gpa = round(first_semester_gpa, 2),  # Round to 2 decimal places
+  second_semester_gpa = round(second_semester_gpa, 2)  # Round to 2 decimal places
+)
+
+# View the tidied data
+head(job_prep_gpa_data_tidy)
+
+
+```
+
+```{r}
+#| warning: false
+#| include: false
+
+# File 3 - Survey data.
+
+# Slice off the first three rows
+job_prep_results_clean <- job_prep_survey_results %>%
+  slice(-1, -2, -3)  # Remove first 3 rows
+
+# Set the correct column names (the 4th row, now the first row)
+colnames(job_prep_results_clean) <- job_prep_results_clean[1, ]
+job_prep_results_clean <- job_prep_results_clean[-1, ]  # Remove the first row now that it is the header
+
+# Rename columns to replace spaces with underscores (for Item 1, Item 2, ...)
+colnames(job_prep_results_clean)[2:15] <- gsub(" ", "_", colnames(job_prep_results_clean)[2:15])
+
+# Convert all columns to integer type
+job_prep_results_clean <- job_prep_results_clean %>%
+  mutate(across(everything(), as.integer))
+
+# View the cleaned dataset
+head(job_prep_results_clean)
+
+```
+
+```{r}
+#| warning: false
+#| include: false
+
+# Check the column names in each dataset to ensure 'ID' is consistent.
+
+colnames(job_prep_demographics_clean)
+colnames(job_prep_gpa_data_tidy)
+colnames(job_prep_results_clean)
+
+# Check the first few rows of each dataset to make sure 'ID' is present and formatted correctly.
+
+head(job_prep_demographics_clean)
+head(job_prep_gpa_data_tidy)
+head(job_prep_results_clean)
+
+# Remove any leading or trailing spaces in column names.
+
+colnames(job_prep_demographics_clean) <- trimws(colnames(job_prep_demographics_clean))
+colnames(job_prep_gpa_data_tidy) <- trimws(colnames(job_prep_gpa_data_tidy))
+colnames(job_prep_results_clean) <- trimws(colnames(job_prep_results_clean))
+
+# Step 4: Ensure 'ID' is an integer in all datasets.
+
+job_prep_demographics_clean <- job_prep_demographics_clean %>%
+  mutate(ID = as.integer(ID))
+
+job_prep_gpa_data_tidy <- job_prep_gpa_data_tidy %>%
+  mutate(ID = as.integer(ID))
+
+job_prep_results_clean <- job_prep_results_clean %>%
+  mutate(ID = as.integer(ID)) 
+
+# Perform the left joins again after ensuring column consistency.
+
+job_prep_combined <- job_prep_demographics_clean %>%
+  left_join(
+    job_prep_gpa_data_tidy %>%
+      select(ID, credits_first_semester, credits_second_semester, first_semester_gpa, second_semester_gpa),
+    by = "ID"
+  ) %>%
+  left_join(
+    job_prep_results_clean %>%
+      select(ID, Item_1, Item_2, Item_3, Item_4, Item_5, Item_6, Item_7, Item_8, Item_9, Item_10, Item_11, Item_12, Item_13, Item_14),  # Select specific columns from Table 3
+    by = "ID"
+  )
+
+# View the combined data.
+
+head(job_prep_combined)
+
+```
+
+```{r}
+#| warning: false
+#| include: false
+
+# Here I am taking my clean joined table and removing the rows that contain NA for survey responses. 
+
+# Remove rows with any NA values.
+
+job_prep_combined_clean <- job_prep_combined %>%
+  drop_na()
+
+# Convert columns to the correct types after dropping NA values.
+
+job_prep_combined_clean <- job_prep_combined_clean %>%
+  mutate(
+    
+    # Convert 'Item_1' through 'Item_14' to integers.
+    
+    across(starts_with("Item_"), as.integer),
+    
+    
+    # Convert GPA and credits columns to numeric.
+    
+    second_semester_gpa = as.numeric(second_semester_gpa),
+    first_semester_gpa = as.numeric(first_semester_gpa),
+    credits_first_semester = as.numeric(credits_first_semester),
+    credits_second_semester = as.numeric(credits_second_semester)
+  )
+
+# View the cleaned data with the updated column types.
+
+head(job_prep_combined_clean)
+
+# View the cleaned data with Item_1 through Item_14 as integers.
+
+head(job_prep_combined_clean)
+
+```
+
+In Figure 1, I created a scatterplot to verify consistency by observing if there a strong linear relationship exists between first and second semester GPAs. In Figure 1, we observe that as the GPA for the first semester increases, so does the GPA for the second semester. This tell us that a strong linear relationship does exist. Since a strong linear relationship exists this GPAs are comparable which means we can create our next scatterplot which will helps us to know if we can predict second semester GPA from first semester GPA.
+
+#### Figure 1. Scatterplot of First Semester GPA Vs Second Semester GPA.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Plot the first semester GPA against the second semester GPA.
+
+ggplot(job_prep_combined_clean, aes(x = first_semester_gpa, y = second_semester_gpa)) +
+  geom_point() +  
+  geom_smooth(method = "lm", col = "red") +  # Add a linear regression line
+  labs(title = "First Semester GPA vs Second Semester GPA",
+       x = "First Semester GPA",
+       y = "Second Semester GPA")
+
+
+```
+
+In Figure 2, I created a scatterplot to identify if patterns exist or not. We do not observe any shapes or patters in the data, which is good because this means the residuals are randomly distributed. This scatterplot helps me to know that my linear model is a good fit and there shouldn't be significant bias in predicting second semester GPA from first semester. This gives me confidence to create a weighted GPA but first I need to identify and exclude those students who are among those with the ten percent largest residuals. I run this analysis next in Figure 3.
+
+#### Figure 2. Scatterplot of Residuals from Predicted Second Semester GPA.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Linear model to predict second semester GPA from first semester GPA.
+
+model <- lm(second_semester_gpa ~ first_semester_gpa, data = job_prep_combined_clean)
+
+# Calculate residuals.
+
+job_prep_combined_clean$residuals <- residuals(model)
+
+# Plot the residuals.
+
+ggplot(job_prep_combined_clean, aes(x = first_semester_gpa, y = residuals)) +
+  geom_point() +
+  labs(title = "Residuals from Predicted Second Semester GPA",
+       x = "First Semester GPA",
+       y = "Residuals")
+
+
+```
+
+```{r}
+#| warning: false
+#| include: false
+
+# Calculate the 90th percentile of the absolute residuals.
+
+residual_threshold <- quantile(abs(job_prep_combined_clean$residuals), 0.9)
+
+# Exclude students whose absolute residuals are above the 90th percentile.
+
+job_prep_combined_clean_filtered <- job_prep_combined_clean %>%
+  filter(abs(residuals) <= residual_threshold)
+
+# Check the number of students excluded.
+
+nrow(job_prep_combined_clean) - nrow(job_prep_combined_clean_filtered)
+
+```
+
+In Figure 3, we can observe the students who are among those with the ten percent largest residuals as they are noted in red. We note from our data that there are 54 students who fall into this category. I will remove those students from the data prior to calculating weighted GPA, which we will call "Senior Year GPA" and we will continue to move through the analysis.
+
+#### Figure 3. Scatterplot of First Semester GPA Vs Second Semester GPA with Large Residuals.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Highlight students with the largest residuals in the scatter plot.
+
+ggplot(job_prep_combined_clean, aes(x = first_semester_gpa, y = second_semester_gpa)) +
+  geom_point(aes(color = abs(residuals) > residual_threshold)) +  
+  geom_smooth(method = "lm", col = "red") +
+  labs(title = "First Semester GPA vs Second Semester GPA with Large Residuals Highlighted",
+       x = "First Semester GPA",
+       y = "Second Semester GPA") +
+  scale_color_manual(values = c("black", "red"), labels = c("Normal", "Large Residuals"))
+
+```
+
+```{r}
+#| warning: false
+#| include: false
+
+# Ensure columns are numeric before calculating the weighted GPA.
+
+job_prep_combined_clean_filtered <- job_prep_combined_clean_filtered %>%
+  mutate(
+    first_semester_gpa = as.numeric(first_semester_gpa),
+    credits_first_semester = as.numeric(credits_first_semester),
+    second_semester_gpa = as.numeric(second_semester_gpa),
+    credits_second_semester = as.numeric(credits_second_semester)
+  )
+
+# Calculate the weighted average GPA.
+
+job_prep_combined_clean_filtered <- job_prep_combined_clean_filtered %>%
+  mutate(
+    weighted_avg_gpa = (first_semester_gpa * credits_first_semester + second_semester_gpa * credits_second_semester) /
+                       (credits_first_semester + credits_second_semester)
+  )
+
+# View the updated data with the weighted average GPA.
+
+head(job_prep_combined_clean_filtered)
+
+```
+
+```{r}
+#| warning: false
+#| include: false
+
+# Call the function from the functions folder.
+
+source("functions/likert_functions.R")
+
+# Using the function to reverse score the below items.
+
+job_prep_combined_clean_filtered <- calculate_likert_score(
+  job_prep_combined_clean_filtered,   # The data
+  scale = 6,                          # The scale used for the items (e.g., 6-point scale)
+  reverse_items = c(4, 9, 12, 13)         # Items to reverse score
+)
+
+# View the data with the total score.
+
+head(job_prep_combined_clean_filtered)
+
+```
+
+#### Analysis for Question #1: Is Senior-year Grade Point Average (GPA) Related to the Degree of Optimism about Future Employment?
+
+```{r}
+#| warning: false
+#| include: false
+
+# Call the function from the functions folder.
+
+source("functions/find_largest_residuals.R")
+
+# Example usage of the function with 'weighted_avg_gpa' as the explanatory variable.
+
+result <- find_largest_residuals(
+  job_prep_combined_clean_filtered,     # The data frame
+  response_var = "total_score",          # The response variable
+  explanatory_var = "weighted_avg_gpa", # The explanatory variable (e.g., GPA)
+  p = 10                                 # Top 10 largest residuals
+)
+
+# Add the result as a new column in the data frame and rename the table.
+
+job_prep_combined_clean_filtered_largest <- job_prep_combined_clean_filtered %>%
+  mutate(large_residuals = result)
+
+# View the data with the new column indicating large residuals.
+
+head(job_prep_combined_clean_filtered_largest)
+
+```
+
+In figure 4, we start to answer our first research question, Is senior-year grade point average (GPA) related to the degree of optimism about future employment? We start by verifying consistency by reviewing the ten students with the largest residuals in the dataset. We can observe these students by the red dots in Figure 4. We analyze these residuals further in Figure 5.
+
+#### Figure 4. Scatterplot of Residuals of Senior Year GPA Vs Optimism Score.
+
+```{r}
+#| echo: false
+#| warning: false
+
+
+# Add residuals to the data frame using weighted_avg_gpa.
+
+job_prep_combined_clean_filtered_largest <- job_prep_combined_clean_filtered_largest %>%
+  mutate(residuals = residuals(lm(total_score ~ weighted_avg_gpa, data = job_prep_combined_clean_filtered_largest)))
+
+# Create the plot for residuals vs weighted_avg_gpa.
+
+ggplot(job_prep_combined_clean_filtered_largest, aes(x = weighted_avg_gpa, y = residuals)) +
+  geom_point(aes(color = large_residuals), size = 2) +  
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +  # Line at residual = 0
+  labs(title = "Residuals vs Senior Year GPA", 
+       x = "Senior Year GPA", y = "Residuals") +
+  scale_color_manual(values = c("TRUE" = "red", "FALSE" = "blue")) +  # Color large residuals in red
+  theme_minimal()
+
+```
+
+In Figure 5, we further explore the residuals to ensure consistency prior to running more analysis. Again, we observe a similar trend in the data in the Histogram that we did in Figure 4. There are a few students who have higher residuals, however, after reviewing these students in the dataset, they show no discernible pattern between them on Subjects, GPA, Optimism Score, etc. So, it will not strengthen our model to remove these students, thus we retain them in the dataset.
+
+#### Figure 5. Histogram of the Frequency of Absolute Residuals.
+
+```{r}
+#| echo: false
+#| warning: false
+
+
+# Create a histogram of absolute residuals.
+ggplot(job_prep_combined_clean_filtered_largest, aes(x = abs(residuals))) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue", color = "black") +
+  geom_vline(aes(xintercept = sort(abs(residuals), decreasing = TRUE)[10]), 
+             color = "red", linetype = "dashed") +
+  labs(title = "Histogram of Absolute Residuals", 
+       x = "Absolute Residuals", y = "Frequency") +
+  theme_minimal()
+
+```
+
+In Figure 6, we observe the scatterplot of Senior Year GPA vs Optimism Score. From our observations, it appears there is not a strong relationship between the two variables. Meaning that as GPA increases, optimism scores does not necessarily increase or decrease. We examine these variables further in Table 1.
+
+#### Figure 6. Scatterplot of Senior Year GPA (Weighted GPA) Vs Optimism Score.
+
+```{r}
+#| echo: false
+#| warning: false
+
+ggplot(job_prep_combined_clean_filtered_largest, aes(x = weighted_avg_gpa, y = total_score)) +
+  geom_point() +  # Scatter plot of the data points
+  geom_smooth(method = "lm", col = "red") +  # Add a linear regression line
+  labs(title = "Senior-Year GPA vs Optimism Score", 
+       x = "Weighted Average GPA", y = "Optimism Score")
+
+
+
+```
+
+In Table 1, we observe the correlation coefficient between Senior Year GPA and Optimism score. , Based on the coefficient, there is a very small and negative relationship between these two variables. As we predicted from Figure 6, no strong relationship exists. To be sure, we run one more analysis in Table 2.
+
+#### Table 1. Correlation Between Senior Year GPA and Optimism Score.
+
+```{r}
+#| echo: false
+#| warning: false
+
+
+# Calculate the correlation between weighted_avg_gpa and total_score.
+
+correlation <- cor(job_prep_combined_clean_filtered_largest$weighted_avg_gpa, 
+                   job_prep_combined_clean_filtered_largest$total_score, 
+                   use = "complete.obs")
+
+# Round the correlation coefficient to two decimal places.
+
+correlation <- round(correlation, 2)
+
+# Create the tibble.
+
+correlation_tibble <- tibble(
+  "Variable 1" = "weighted_avg_gpa",
+  "Variable 2" = "total_score",
+  Correlation_Coefficient = correlation
+)
+
+correlation_tibble %>%
+  gt() %>%
+  tab_header(title = "Correlation Between Weighted GPA and Optimism Score") %>%
+  fmt_number(
+    columns = vars(Correlation_Coefficient),
+    decimals = 2
+  )
+
+
+```
+
+In Table 2, we again learn that there is a small negative relationship between the two variables and this helps us answer no to the question: Is senior-year grade point average (GPA) related to the degree of optimism about future employment?
+
+#### Table 2. Linear Regression of Optimism Score and Senior Year GPA.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Run a linear regression model.
+
+model <- lm(total_score ~ weighted_avg_gpa, data = job_prep_combined_clean_filtered_largest)
+
+# Summary of the regression model.
+
+model_summary <- summary(model)
+
+# Extract coefficients, p-values, and other relevant results.
+
+regression_results <- tibble(
+  Term = rownames(model_summary$coefficients),
+  Estimate = round(model_summary$coefficients[, 1], 2),
+  Std_Error = round(model_summary$coefficients[, 2], 2),
+  t_Value = round(model_summary$coefficients[, 3], 2),
+  p_Value = round(model_summary$coefficients[, 4], 2)
+)
+
+regression_results %>%
+  gt() %>%
+  tab_header(
+    title = "Linear Regression Results: Optimism Score vs Weighted GPA"
+  ) %>%
+  fmt_number(
+    columns = vars(Estimate, Std_Error, t_Value, p_Value),
+    decimals = 2
+  ) %>%
+  cols_label(
+    Term = "Term",
+    Estimate = "Estimate",
+    Std_Error = "Standard Error",
+    t_Value = "t-Statistic",
+    p_Value = "p-Value"
+  )
+
+```
+
+#### Analysis for Question #2: Is the Relationship of GPA and Optimism Consistent or Different for Different Categories of Disciplines?
+
+In figure 6, we observe the relationship between Senior Year GPA and Optimism Score is not consistent across different subjects or disciplines. For example, we note that they relationship between Senior Year GPA and Optimism Score in some subjects, like Humanities and Natural Sciences, appears to be negative. However, subjects like Applied Sciences and Social Sciences appear to have a weak or negative relationship with Optimism Score. To be more conclusive, we examine this question further in Table 3 with Linear Regression of Subjects.
+
+#### Figure 6. Scatterplot of Senior Year GPA Vs Optimism Score by Subject.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Scatter plot of weighted_avg_gpa vs total_score for each subject category.
+
+ggplot(job_prep_combined_clean_filtered_largest, aes(x = weighted_avg_gpa, y = total_score)) +
+  geom_point(aes(color = Subjects)) +  # Color by subject category
+  geom_smooth(method = "lm", aes(color = Subjects), se = FALSE) +  
+  labs(title = "Relationship Between Weighted Avg GPA and Optimism Score by Subject",
+       x = "Weighted Average GPA", y = "Optimism Score") +
+  theme_minimal()
+
+```
+
+In Table 3, we further seek to answer the question, Is the relationship of GPA and optimism consistent or different for different categories of disciplines? We learn from the linear regression in Table 3, with either negative or small coefficients for each subject, that the relationship must in fact be different for different categories of disciplines. However, we run one more test to be sure in Table 4, an interaction model between Optimism Score and Senior Year GPA by Subject.
+
+#### Table 3. Linear Regression of Subjects.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Fit separate linear models for each subject category.
+
+model_by_subject <- job_prep_combined_clean_filtered_largest %>%
+  group_by(Subjects) %>%
+  do(model = lm(total_score ~ weighted_avg_gpa, data = .))
+
+# Extract coefficients and p-values from each model, round to two decimal places.
+
+model_summary <- model_by_subject %>%
+  summarize(
+    Subjects = first(Subjects),  
+    Estimate = round(coef(model)[2], 2),  
+    P_value = round(summary(model)$coefficients[2, 4], 2)  
+  )
+
+
+model_summary %>%
+  gt() %>%
+  tab_header(
+    title = "Linear Regression Model Results by Subject"
+  ) %>%
+  fmt_number(
+    columns = vars(Estimate, P_value),
+    decimals = 2
+  ) %>%
+  cols_label(
+    Subjects = "Subject",  
+    Estimate = "Coefficient of Senior Year GPA",
+    P_value = "p-value"
+  )
+
+
+```
+
+In table 4, we observe the interaction model (Relationship) of Optimism Score and Senior Year GPA across different subjects. We observe, like in Figure 6, the relationship is indeed different across different subjects and mostly negative when comparing each subject to Applied Sciences for Optimism Score. Meaning that in general as GPA increases and is held constant, Optimism Scores decreases. However, based on the interaction data with the subjects in Table 4, we learn that there is a positive relationship for all subjects when compared to Applied Sciences. This tells us that the interaction between Senior Year GPA and Optimism Score is stronger in all subjects compared to Applied Sciences. The good news that from Table 4 we can interpret the confidence intervals and determine with 95% confidence where we would expect a score to be. For example, we can predict with 95% confidence that when GPA is held constant, an optimism score for Social Sciences will fall between -17.95 and -5.48. This confidence interval does not include zero, meaning it is statistically significant. However, for the confidence intervals that do include zero, these would not be considered statically significant. In summary, Is the relationship of GPA and optimism consistent or different for different categories of disciplines? Yes, it is different for different categories of disciplines.
+
+#### Table 4. Interaction Model of Optimism Score Vs Senior Year GPA, and Subjects.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Fit an interaction model.
+
+interaction_model <- lm(total_score ~ weighted_avg_gpa * Subjects, data = job_prep_combined_clean_filtered_largest)
+
+# Summary of the interaction model.
+
+interaction_summary <- summary(interaction_model)
+
+# Extract coefficients, standard errors, t-values, p-values, and 95% CI from the interaction model.
+
+interaction_results <- tibble(
+  Term = rownames(interaction_summary$coefficients),
+  Estimate = round(interaction_summary$coefficients[, 1], 2),
+  Std_Error = round(interaction_summary$coefficients[, 2], 2),
+  t_Value = round(interaction_summary$coefficients[, 3], 2),
+  p_Value = round(interaction_summary$coefficients[, 4], 2),
+  # Calculate the 95% confidence intervals
+  Lower_CI = round(confint(interaction_model)[, 1], 2),
+  Upper_CI = round(confint(interaction_model)[, 2], 2)
+)
+
+# Display the interaction results with confidence intervals.
+
+interaction_results %>%
+  gt() %>%
+  tab_header(
+    title = "Interaction Model Results: Optimism Score vs Senior Year GPA and Subjects"
+  ) %>%
+  fmt_number(
+    columns = vars(Estimate, Std_Error, t_Value, p_Value, Lower_CI, Upper_CI),
+    decimals = 2
+  ) %>%
+  cols_label(
+    Term = "Term",
+    Estimate = "Estimate",
+    Std_Error = "Standard Error",
+    t_Value = "t-Statistic",
+    p_Value = "p-Value",
+    Lower_CI = "95% CI Lower",
+    Upper_CI = "95% CI Upper"
+  )
+
+```
+
+#### Analysis for Question #3: Is the Level of Optimism Different for Different Categories of Disciplines?
+
+In Figure 8 we can observe the following in relationship to our question, Is the level of optimism different for different categories of disciplines?, students in applied and formal sciences appear to have higher and more consistent levels of optimism when compared with students in humanities or natural sciences. In addition, students in the social sciences discipline have higher variability than other disciplines, meaning some student are very optimistic while others are very pessimistic. I will run more analysis on this data in Table 5 by running an ANOVA test.
+
+#### Figure 8. Distribution of Optimism Scores Across Subjects.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Box plot to visualize the distribution of optimism_score across subjects.
+
+ggplot(job_prep_combined_clean_filtered_largest, aes(x = Subjects, y = total_score)) +
+  geom_boxplot(aes(fill = Subjects)) +  # Box plot colored by subject
+  labs(title = "Distribution of Optimism Score Across Subjects", 
+       x = "Subjects", y = "Optimism Score") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+In table 5, we observe a one-way ANOVA test of Optimism Scores across different subjects to help us continue to answer our research question. In this table we observe an F-value of 114.10 which is quite large and tells us there is a strong relationship between Subjects and Optimism Scores and that the level of optimism about future employment differs significantly based on the subject. The observed P value also tell us that this could be statistically significant, and we would normally reject the null hypothesis of: there is no observed difference in optimism scores across subjects. However, in the next table we run 95% confidence intervals which will tell us with greater confidence.
+
+#### Table 5. One-way ANOVA of Optimism Score Across Subjects.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Conduct a one-way ANOVA to compare total_score across subjects.
+
+anova_results <- aov(total_score ~ Subjects, data = job_prep_combined_clean_filtered_largest)
+
+# View the summary of the ANOVA results.
+
+anova_summary <- summary(anova_results)
+
+# Extract the relevant results from the ANOVA summary.
+
+anova_tibble <- tibble(
+  Df = anova_summary[[1]]$`Df`,  # Degrees of freedom
+  Sum_Sq = round(anova_summary[[1]]$`Sum Sq`, 2),  
+  Mean_Sq = round(anova_summary[[1]]$`Mean Sq`, 2),  
+  F_value = round(anova_summary[[1]]$`F value`, 2),  
+  Pr_F = round(anova_summary[[1]]$`Pr(>F)`, 2)  
+)
+
+# Display the ANOVA results using gt for a table.
+
+anova_results_gt <- anova_tibble %>%
+  gt() %>%
+  tab_header(
+    title = "ANOVA Results for Optimism Score by Subject"
+  ) %>%
+  cols_label(
+    Df = "Degrees of Freedom",
+    Sum_Sq = "Sum of Squares",
+    Mean_Sq = "Mean Squares",
+    F_value = "F Value",
+    Pr_F = "p-value"
+  ) %>%
+  fmt_number(
+    columns = vars(Sum_Sq, Mean_Sq, F_value, Pr_F),
+    decimals = 2
+  )
+
+# Print the table.
+
+anova_results_gt
+
+```
+
+In Table 6, we observe in general by reviewing the results of the table that the level of optimism is significantly different across various subjects. More specifically, Humanities has a much lower level of optimism than that of all of other sciences. In addition, the differences between Applied, Formal, and Natural Sciences are significant in most cases, while the comparison between Social and Natural Sciences is not significant. For example, we can predict with 95% confidence that the optimism score for Humanities will fall between -17.77 and -12.95 lower than Formal Sciences, with GPA held constant. Finally, we can answer our research question, Is the level of optimism different for different categories of disciplines? And the answer is Yes.
+
+#### Table 6. Tukey Post-hoc Test of ANOVA Results in Table 5.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Perform Tukey's HSD post-hoc test.
+
+tukey_results <- TukeyHSD(anova_results)
+
+# Extract the Tukey results for 'Subjects' comparison.
+
+tukey_df <- as.data.frame(tukey_results$`Subjects`)
+
+# Convert to tibble and round the values to 2 decimal places.
+
+tukey_tibble <- tibble(
+  Comparison = rownames(tukey_df),  
+  Difference = round(tukey_df$diff, 2),
+  `Lower Bound` = round(tukey_df$lwr, 2),
+  `Upper Bound` = round(tukey_df$upr, 2),
+  p_value = round(tukey_df$`p adj`, 2)  
+)
+
+tukey_results_gt <- tukey_tibble %>%
+  gt() %>%
+  tab_header(
+    title = "Tukey's HSD Post-Hoc Test Results"
+  ) %>%
+  cols_label(
+    Comparison = "Comparison of Subjects",
+    Difference = "Difference in Means",
+    `Lower Bound` = "Lower Bound of CI",
+    `Upper Bound` = "Upper Bound of CI",
+    p_value = "p-value"
+  ) %>%
+  fmt_number(
+    columns = vars(Difference, `Lower Bound`, `Upper Bound`, p_value),
+    decimals = 2
+  )
+
+# Print the Tukey results table.
+
+tukey_results_gt
+```
+
+## Conclusion
+
+This report and analysis aimed to reveal the answers to three research questions, Is senior-year grade point average (GPA) related to the degree of optimism about future employment? Is the relationship of GPA and optimism consistent or different for different categories of disciplines? Is the level of optimism different for different categories of disciplines?, which have been answered through the analysis. First, the analysis revealed that there is not a statistically significant relationship between Senior Year GPA and the degree of optimism about future employment. Meaning that Senior Year GPA does not have a meaningful influence on optimism about future employment. Next, the relationship between GPA and optimism does not appear to be consistent across different academic disciplines. The research also suggested that the impact of Senior Year GPA on Optimism Score depends on the Subject. Lastly, based on the data presented, the level of optimism about future employment does differ significantly across Subjects.
