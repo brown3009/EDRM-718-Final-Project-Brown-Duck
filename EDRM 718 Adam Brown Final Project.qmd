@@ -2,7 +2,9 @@
 title: "EDRM 718 Adam Brown Final Project"
 author: "Adam Brown"
 date: "`r Sys.Date()`"
-format: html
+output:
+  pdf_document:
+    output_dir: "C:\\Users\\acb38\\Documents\\R Projects\\EDRM 718 Final Project Brown Duck"
 editor: visual
 ---
 
@@ -107,13 +109,13 @@ if (nrow(survey_issues) > 0) {
 
 ## Description
 
-This research report explores the relationships between optimism scores (from the survey data and measures their outlook on employment and career readiness), reported GPA's, and the college students academic disciplines or subjects. More specifically, this report seeks to answer these three questions, Is senior-year grade point average (GPA) related to the degree of optimism about future employment? Is the relationship of GPA and optimism consistent or different for different categories of disciplines? Is the level of optimism different for different categories of disciplines? The three datasets include survey results from over 700 college seniors. graduating this spring, representing 23 major universities in the United States. These datasets include demographic data, academic performance data, and data from a short (14-item) Likert-type survey which sought to determine their optimism regarding their readiness and likelihood of obtaining a job after graduation
+This research report explores the relationships between optimism scores (from the survey data and measures their outlook on employment and career readiness), reported GPAs, and the college students academic disciplines or subjects. More specifically, this report seeks to answer these three questions, Is senior-year grade point average (GPA) related to the degree of optimism about future employment? Is the relationship of GPA and optimism consistent or different for different categories of disciplines? Is the level of optimism different for different categories of disciplines? The three datasets include survey results from over 700 college seniors. graduating this spring, representing 23 major universities in the United States. These datasets include demographic data, academic performance data, and data from a short (14-item) Likert-type survey which sought to determine their optimism regarding their readiness and likelihood of obtaining a job after graduation
 
 **Source of Data:** Real World Solutions, Job Prep Demographics, Job Prep GPA, and Job Prep Survey Results. Sourced 24 April 2025.
 
 ## Analysis
 
-I begin my analysis reading in the three separate data files, tidying the data that is missing or has problems, and then joining the files together using my unique key, which in this case is Student ID number. Now that I have completed the data processing and cleaning, I start by examining the reported GPA's for the students from the first and second semester. We need to verify consistency of GPA's before we can create a weighted GPA average.
+I begin my analysis reading in the three separate data files, tidying the data that is missing or has problems, and then joining the files together using my unique key, which in this case is Student ID number. Now that I have completed the data processing and cleaning, I start by examining the reported GPAs for the students from the first and second semester. We need to verify consistency of GPAs before we can create a weighted GPA average.
 
 ```{r}
 #| include: false
@@ -332,7 +334,7 @@ head(job_prep_combined_clean)
 
 ```
 
-In Figure 1, I created a scatterplot to verify consistency by observing if there a strong linear relationship exists between first and second semester GPA's. In Figure 1, we observe that as the GPA for the first semester increases, so does the GPA for the second semester. This tell us that a strong linear relationship does exist. Since a strong linear relationship exists this GPA's are comparable which means we can create our next scatterplot which will helps us to know if we can predict second semester GPA from first semester GPA.
+In Figure 1, I created a scatterplot to verify consistency by observing if there a strong linear relationship exists between first and second semester GPAs. In Figure 1, we observe that as the GPA for the first semester increases, so does the GPA for the second semester. This tell us that a strong linear relationship does exist. Since a strong linear relationship exists this GPAs are comparable which means we can create our next scatterplot which will helps us to know if we can predict second semester GPA from first semester GPA.
 
 #### Figure 1. Scatterplot of First Semester GPA Vs Second Semester GPA.
 
@@ -468,7 +470,7 @@ head(job_prep_combined_clean_filtered)
 
 ```
 
-#### Analysis for Question #1: Is Senior-year Grade Point Average (GPA) Related to the Degree of Optimism about Future Employment? 
+#### Analysis for Question #1: Is Senior-year Grade Point Average (GPA) Related to the Degree of Optimism about Future Employment?
 
 ```{r}
 #| warning: false

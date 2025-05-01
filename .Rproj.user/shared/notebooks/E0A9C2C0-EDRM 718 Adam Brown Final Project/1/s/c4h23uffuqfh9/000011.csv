@@ -1,3 +1,0 @@
-"0",""
-"0","# View the cleaned data with Item_1 through Item_14 as integers"
-"0","head(job_prep_combined_clean)"
