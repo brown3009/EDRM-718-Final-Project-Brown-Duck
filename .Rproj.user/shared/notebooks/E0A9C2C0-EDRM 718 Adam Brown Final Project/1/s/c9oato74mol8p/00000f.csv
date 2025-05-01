@@ -1,6 +1,0 @@
-"0",""
-"0","ggplot(job_prep_combined_clean_filtered_largest, aes(x = weighted_avg_gpa, y = optimism_score)) +"
-"0","  geom_point() +  # Scatter plot of the data points"
-"0","  geom_smooth(method = ""lm"", col = ""red"") +  # Add a linear regression line"
-"0","  labs(title = ""Senior-Year GPA vs Optimism Score"", "
-"0","       x = ""Weighted Average GPA"", y = ""Optimism Score"")"

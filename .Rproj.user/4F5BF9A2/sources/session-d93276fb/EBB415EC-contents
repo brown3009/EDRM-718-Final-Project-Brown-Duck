@@ -18,6 +18,7 @@ library(tidyverse)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(knitr)
 
 ```
 
@@ -200,17 +201,12 @@ job_prep_gpa_data_tidy <- job_prep_gpa_data_tidy %>%
     credits_second_semester = as.numeric(credits_second_semester),
     second_semester_gpa = as.numeric(second_semester_gpa)
   ) %>%
-  # Format GPA columns to 2 decimal places (no rounding)
-  mutate(
-    first_semester_gpa = format(first_semester_gpa, digits = 3, nsmall = 2),
-    second_semester_gpa = format(second_semester_gpa, digits = 3, nsmall = 2)
+  
+  # Round GPA columns to 2 decimal places
+mutate(
+  first_semester_gpa = round(first_semester_gpa, 2),  # Round to 2 decimal places
+  second_semester_gpa = round(second_semester_gpa, 2)  # Round to 2 decimal places
 )
-    
-  #mutate(
-   # avg_gpa = (first_semester_gpa * credits_first_semester + second_semester_gpa * credits_second_semester) / 
-    #         (credits_first_semester + credits_second_semester)
-  #)) %>%
-  #select(ID, first_semester_gpa, second_semester_gpa, avg_gpa, credits_first_semester, credits_second_semester)
 
 # View the tidied data
 head(job_prep_gpa_data_tidy)
@@ -402,6 +398,8 @@ ggplot(job_prep_combined_clean, aes(x = first_semester_gpa, y = second_semester_
 ```
 
 ```{r}
+#| warning: false
+#| include: false
 
 # Ensure columns are numeric before calculating the weighted GPA
 job_prep_combined_clean_filtered <- job_prep_combined_clean_filtered %>%
@@ -425,21 +423,28 @@ head(job_prep_combined_clean_filtered)
 ```
 
 ```{r}
+#| eval: false
+#| warning: false
+#| include: false
+
+# WHY IS THIS SEPERATE????????????????
 
 
 # Calculate weighted average GPA based on the number of credits taken in each semester
-job_prep_combined_clean_filtered <- job_prep_combined_clean_filtered %>%
-  mutate(
-    weighted_avg_gpa = (first_semester_gpa * credits_first_semester + second_semester_gpa * credits_second_semester) /
-                       (credits_first_semester + credits_second_semester)
-  )
+#job_prep_combined_clean_filtered <- job_prep_combined_clean_filtered %>%
+ # mutate(
+  #  weighted_avg_gpa = (first_semester_gpa * credits_first_semester + second_semester_gpa * credits_second_semester) /
+  #                     (credits_first_semester + credits_second_semester)
+  #)
 
 # View the updated data with the weighted average GPA
-head(job_prep_combined_clean_filtered)
+#head(job_prep_combined_clean_filtered)
 
 ```
 
 ```{r}
+#| warning: false
+#| include: false
 
 # Load the function from the external R script in the "functions" folder
 source("functions/likert_functions.R")
@@ -456,7 +461,11 @@ head(job_prep_combined_clean_filtered)
 
 ```
 
+Question #1
+
 ```{r}
+#| warning: false
+#| include: false
 
 # Source the function from the 'functions' folder
 source("functions/find_largest_residuals.R")
@@ -481,8 +490,52 @@ head(job_prep_combined_clean_filtered_largest)
 #### Figure 4. Reading Scores by Gender.
 
 ```{r}
+#| echo: false
+#| warning: false
 
-ggplot(job_prep_combined_clean_filtered_largest, aes(x = weighted_avg_gpa, y = optimism_score)) +
+
+# Add residuals to the data frame
+job_prep_combined_clean_filtered_largest <- job_prep_combined_clean_filtered_largest %>%
+  mutate(residuals = residuals(lm(total_score ~ first_semester_gpa, data = job_prep_combined_clean_filtered_largest)))
+
+# Plot the residuals
+library(ggplot2)
+
+ggplot(job_prep_combined_clean_filtered_largest, aes(x = first_semester_gpa, y = residuals)) +
+  geom_point(aes(color = large_residuals), size = 2) +  # Color points by large residuals flag
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +  # Line at residual = 0
+  labs(title = "Residuals vs First Semester GPA", 
+       x = "First Semester GPA", y = "Residuals") +
+  scale_color_manual(values = c("TRUE" = "red", "FALSE" = "blue")) +  # Color large residuals in red
+  theme_minimal()
+
+```
+
+#### Figure 5. Reading Scores by Gender.
+
+```{r}
+#| echo: false
+#| warning: false
+
+
+# Create a histogram of absolute residuals
+ggplot(job_prep_combined_clean_filtered_largest, aes(x = abs(residuals))) +
+  geom_histogram(binwidth = 0.5, fill = "lightblue", color = "black") +
+  geom_vline(aes(xintercept = sort(abs(residuals), decreasing = TRUE)[10]), 
+             color = "red", linetype = "dashed") +
+  labs(title = "Histogram of Absolute Residuals", 
+       x = "Absolute Residuals", y = "Frequency") +
+  theme_minimal()
+
+```
+
+#### Figure 6. Reading Scores by Gender.
+
+```{r}
+#| echo: false
+#| warning: false
+
+ggplot(job_prep_combined_clean_filtered_largest, aes(x = weighted_avg_gpa, y = total_score)) +
   geom_point() +  # Scatter plot of the data points
   geom_smooth(method = "lm", col = "red") +  # Add a linear regression line
   labs(title = "Senior-Year GPA vs Optimism Score", 
@@ -495,34 +548,44 @@ ggplot(job_prep_combined_clean_filtered_largest, aes(x = weighted_avg_gpa, y = o
 #### Table 1. Reading Scores by Gender.
 
 ```{r}
+#| echo: false
+#| warning: false
 
 
-# Calculate the correlation between weighted_avg_gpa and optimism_score
+# Calculate the correlation between weighted_avg_gpa and total_score
 correlation <- cor(job_prep_combined_clean_filtered_largest$weighted_avg_gpa, 
-                   job_prep_combined_clean_filtered_largest$optimism_score, 
+                   job_prep_combined_clean_filtered_largest$total_score, 
                    use = "complete.obs")
 
 # Round the correlation coefficient to two decimal places
 correlation <- round(correlation, 2)
 
-# Create a tibble to display the correlation result
-library(tibble)
-
+# Create the tibble
 correlation_tibble <- tibble(
-  Variable_1 = "weighted_avg_gpa",
-  Variable_2 = "optimism_score",
+  "Variable 1" = "weighted_avg_gpa",
+  "Variable 2" = "total_score",
   Correlation_Coefficient = correlation
 )
 
-# View the correlation tibble
-print(correlation_tibble)
+correlation_tibble %>%
+  gt() %>%
+  tab_header(title = "Correlation Between Weighted GPA and Optimism Score") %>%
+  fmt_number(
+    columns = vars(Correlation_Coefficient),
+    decimals = 2
+  )
+
 
 ```
 
+#### Table 2. Reading Scores by Gender.
+
 ```{r}
+#| echo: false
+#| warning: false
 
 # Run a linear regression model
-model <- lm(optimism_score ~ weighted_avg_gpa, data = job_prep_combined_clean_filtered_largest)
+model <- lm(total_score ~ weighted_avg_gpa, data = job_prep_combined_clean_filtered_largest)
 
 # Summary of the regression model
 model_summary <- summary(model)
@@ -536,9 +599,231 @@ regression_results <- tibble(
   p_Value = round(model_summary$coefficients[, 4], 2)
 )
 
-# View the regression results tibble
-print(regression_results)
+# Display the regression results using gt for a polished table format
+library(gt)
 
+regression_results %>%
+  gt() %>%
+  tab_header(
+    title = "Linear Regression Results: Total Score vs Weighted GPA"
+  ) %>%
+  fmt_number(
+    columns = vars(Estimate, Std_Error, t_Value, p_Value),
+    decimals = 2
+  ) %>%
+  cols_label(
+    Term = "Term",
+    Estimate = "Estimate",
+    Std_Error = "Standard Error",
+    t_Value = "t-Statistic",
+    p_Value = "p-Value"
+  )
+
+```
+
+Question #2
+
+#### Figure 6. Reading Scores by Gender.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Scatter plot of weighted_avg_gpa vs total_score for each subject category
+ggplot(job_prep_combined_clean_filtered_largest, aes(x = weighted_avg_gpa, y = total_score)) +
+  geom_point(aes(color = Subjects)) +  # Color by subject category
+  geom_smooth(method = "lm", aes(color = Subjects), se = FALSE) +  # Add linear regression line for each subject
+  labs(title = "Relationship Between Weighted Avg GPA and Total Score by Subject",
+       x = "Weighted Average GPA", y = "Optimism Score") +
+  theme_minimal()
+
+```
+
+#### Table 3. Reading Scores by Gender.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Fit separate linear models for each subject category
+model_by_subject <- job_prep_combined_clean_filtered_largest %>%
+  group_by(Subjects) %>%
+  do(model = lm(total_score ~ weighted_avg_gpa, data = .))
+
+# Extract coefficients and p-values from each model, rounding to two decimal places
+model_summary <- model_by_subject %>%
+  summarise(
+    Subjects = first(Subjects),  # Ensure that 'Subjects' is part of the output tibble
+    Estimate = round(coef(model)[2], 2),  # Coefficient of weighted_avg_gpa, rounded to two decimal places
+    P_value = round(summary(model)$coefficients[2, 4], 2)  # P-value of weighted_avg_gpa, rounded to two decimal places
+  )
+
+
+model_summary %>%
+  gt() %>%
+  tab_header(
+    title = "Linear Regression Model Results by Subject"
+  ) %>%
+  fmt_number(
+    columns = vars(Estimate, P_value),
+    decimals = 2
+  ) %>%
+  cols_label(
+    Subjects = "Subject",  # The 'Subjects' column should now work correctly
+    Estimate = "Coefficient of Weighted GPA",
+    P_value = "p-value"
+  )
+
+
+```
+
+#### Table 4. Reading Scores by Gender.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Fit an interaction model
+interaction_model <- lm(total_score ~ weighted_avg_gpa * Subjects, data = job_prep_combined_clean_filtered_largest)
+
+# Summary of the interaction model
+interaction_summary <- summary(interaction_model)
+
+# Extract coefficients, standard errors, t-values, and p-values from the interaction model
+interaction_results <- tibble(
+  Term = rownames(interaction_summary$coefficients),
+  Estimate = round(interaction_summary$coefficients[, 1], 2),
+  Std_Error = round(interaction_summary$coefficients[, 2], 2),
+  t_Value = round(interaction_summary$coefficients[, 3], 2),
+  p_Value = round(interaction_summary$coefficients[, 4], 2)
+)
+
+interaction_results %>%
+  gt() %>%
+  tab_header(
+    title = "Interaction Model Results: Total Score vs Weighted GPA and Subjects"
+  ) %>%
+  fmt_number(
+    columns = vars(Estimate, Std_Error, t_Value, p_Value),
+    decimals = 2
+  ) %>%
+  cols_label(
+    Term = "Term",
+    Estimate = "Estimate",
+    Std_Error = "Standard Error",
+    t_Value = "t-Statistic",
+    p_Value = "p-Value"
+  )
+
+
+```
+
+Question #3
+
+#### Figure 7. Reading Scores by Gender.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Box plot to visualize the distribution of optimism_score across subjects
+ggplot(job_prep_combined_clean_filtered_largest, aes(x = Subjects, y = total_score)) +
+  geom_boxplot(aes(fill = Subjects)) +  # Box plot colored by subject
+  labs(title = "Distribution of Optimism Score Across Subjects", 
+       x = "Subjects", y = "Optimism Score") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+#### Table 5. Reading Scores by Gender.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Conduct a one-way ANOVA to compare total_score across subjects
+anova_results <- aov(total_score ~ Subjects, data = job_prep_combined_clean_filtered_largest)
+
+# View the summary of the ANOVA results
+anova_summary <- summary(anova_results)
+
+# Extract the relevant results from the ANOVA summary
+anova_tibble <- tibble(
+  Df = anova_summary[[1]]$`Df`,  # Degrees of freedom
+  Sum_Sq = round(anova_summary[[1]]$`Sum Sq`, 2),  # Sum of squares, rounded to 2 decimal places
+  Mean_Sq = round(anova_summary[[1]]$`Mean Sq`, 2),  # Mean squares, rounded to 2 decimal places
+  F_value = round(anova_summary[[1]]$`F value`, 2),  # F-statistic, rounded to 2 decimal places
+  Pr_F = round(anova_summary[[1]]$`Pr(>F)`, 2)  # p-value, rounded to 2 decimal places
+)
+
+
+# Display the ANOVA results using gt for a nicer table
+anova_results_gt <- anova_tibble %>%
+  gt() %>%
+  tab_header(
+    title = "ANOVA Results for Optimism Score by Subject"
+  ) %>%
+  cols_label(
+    Df = "Degrees of Freedom",
+    Sum_Sq = "Sum of Squares",
+    Mean_Sq = "Mean Squares",
+    F_value = "F Value",
+    Pr_F = "p-value"
+  ) %>%
+  fmt_number(
+    columns = vars(Sum_Sq, Mean_Sq, F_value, Pr_F),
+    decimals = 2
+  )
+
+# Print the gt table
+anova_results_gt
+
+```
+
+#### Table 6. Reading Scores by Gender.
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Perform Tukey's HSD post-hoc test
+tukey_results <- TukeyHSD(anova_results)
+
+# Extract the Tukey results for 'Subjects' comparison
+tukey_df <- as.data.frame(tukey_results$`Subjects`)
+
+# Convert to tibble and round the values to 2 decimal places
+tukey_tibble <- tibble(
+  Comparison = rownames(tukey_df),  # Create a column with the comparisons
+  Difference = round(tukey_df$diff, 2),
+  `Lower Bound` = round(tukey_df$lwr, 2),
+  `Upper Bound` = round(tukey_df$upr, 2),
+  p_value = round(tukey_df$`p adj`, 2)  # Corrected to reference 'p adj' with backticks
+)
+
+# Display the Tukey test results using gt for a nice table
+library(gt)
+
+tukey_results_gt <- tukey_tibble %>%
+  gt() %>%
+  tab_header(
+    title = "Tukey's HSD Post-Hoc Test Results"
+  ) %>%
+  cols_label(
+    Comparison = "Comparison of Subjects",
+    Difference = "Difference in Means",
+    `Lower Bound` = "Lower Bound of CI",
+    `Upper Bound` = "Upper Bound of CI",
+    p_value = "p-value"
+  ) %>%
+  fmt_number(
+    columns = vars(Difference, `Lower Bound`, `Upper Bound`, p_value),
+    decimals = 2
+  )
+
+# Print the Tukey results table
+tukey_results_gt
 ```
 
 ## Conclusion
