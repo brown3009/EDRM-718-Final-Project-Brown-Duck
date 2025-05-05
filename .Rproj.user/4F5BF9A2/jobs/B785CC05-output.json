@@ -29,3 +29,5 @@
 [1,"pandoc \n  to: html\n  output-file: EDRM 718 Adam Brown Final Project.html\n  standalone: true\n  section-divs: true\n  html-math-method: mathjax\n  wrap: none\n  default-image-extension: png\n  \nmetadata\n  document-css: false\n  link-citations: true\n  date-format: long\n  lang: en\n  title: EDRM 718 Adam Brown Final Project\n  author: Adam Brown\n  date: '`r Sys.Date()`'\n  editor: visual\n  \n"]
 [1,"Output created: EDRM 718 Adam Brown Final Project.html\n\nWatching files for changes\n"]
 [1,"Browse at http://localhost:4686/\n"]
+[1,"GET: /developmentserver/metadatauploader (404: Not Found)\n"]
+[1,"WARN: invalid HTTP method parsed\nWARN: invalid HTTP method parsed\n"]
